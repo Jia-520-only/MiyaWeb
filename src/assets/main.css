@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gradient-to-br from-primary-50/80 via-white to-secondary-50/80 text-gray-800 transition-colors duration-300;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  .dark body {
+    @apply bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-100;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  :root {
+    --content-overlay-bg: transparent;
+    --content-overlay-text: inherit;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-xl transition-all duration-300 shadow-glass hover:shadow-glass-lg font-medium text-sm;
+  }
+  .dark .btn-primary {
+    @apply hover:bg-primary-400;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2 bg-white/60 hover:bg-white/80 dark:bg-gray-700/60 dark:hover:bg-gray-700/80 text-gray-700 dark:text-gray-200 rounded-xl transition-all duration-300 backdrop-blur-md border border-glass-border dark:border-glass-borderDark font-medium text-sm;
+  }
+
+  .btn-ghost {
+    @apply px-3 py-1.5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-gray-700/40 rounded-lg transition-all duration-200 text-sm;
+  }
+
+  .card {
+    @apply backdrop-blur-xl rounded-2xl shadow-glass p-6 hover:shadow-glass-lg transition-all duration-300 border border-glass-border dark:border-glass-borderDark;
+    background-color: var(--content-overlay-bg, rgba(255, 255, 255, 0.75));
+    color: var(--content-overlay-text, inherit);
+  }
+  .dark .card {
+    background-color: var(--content-overlay-bg, rgba(17, 24, 39, 0.75));
+    color: var(--content-overlay-text, inherit);
+  }
+
+  .glass-card {
+    @apply backdrop-blur-2xl rounded-2xl shadow-glass-lg border border-glass-border dark:border-glass-borderDark transition-all duration-300;
+    background-color: var(--content-overlay-bg, rgba(255, 255, 255, 0.8));
+    color: var(--content-overlay-text, inherit);
+  }
+  .dark .glass-card {
+    background-color: var(--content-overlay-bg, rgba(17, 24, 39, 0.8));
+    color: var(--content-overlay-text, inherit);
+  }
+
+  .glass-panel {
+    @apply backdrop-blur-2xl rounded-3xl shadow-glass-lg border border-glass-border dark:border-glass-borderDark;
+    background-color: var(--content-overlay-bg, rgba(255, 255, 255, 0.65));
+    color: var(--content-overlay-text, inherit);
+  }
+  .dark .glass-panel {
+    background-color: var(--content-overlay-bg, rgba(17, 24, 39, 0.65));
+    color: var(--content-overlay-text, inherit);
+  }
+
+  .section-title {
+    @apply text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 tracking-tight;
+  }
+
+  .page-container {
+    @apply min-h-screen pt-20 pb-12;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2.5 bg-white/50 dark:bg-gray-800/50 border border-glass-border dark:border-glass-borderDark rounded-xl focus:ring-2 focus:ring-primary-400/50 focus:border-primary-400 dark:focus:ring-primary-500/50 dark:focus:border-primary-500 backdrop-blur-md text-sm transition-all duration-200 outline-none;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+}
+
+@layer utilities {
+  ::-webkit-scrollbar {
+    @apply w-1.5 h-1.5;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  .dark ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300/50 rounded-full;
+  }
+  .dark ::-webkit-scrollbar-thumb {
+    @apply bg-gray-600/50 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400/70;
+  }
+  .dark ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500/70;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-secondary-500;
+  }
+  .dark .text-gradient {
+    @apply from-primary-400 to-secondary-400;
+  }
+}

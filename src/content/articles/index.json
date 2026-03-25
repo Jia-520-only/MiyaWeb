@@ -1,0 +1,84 @@
+{
+  "categories": [
+    {
+      "id": "linux",
+      "name": "Linux",
+      "icon": "🐧",
+      "description": "Linux 系统相关教程和技巧"
+    },
+    {
+      "id": "security",
+      "name": "网络安全",
+      "icon": "🔒",
+      "description": "Web 安全、渗透测试等"
+    },
+    {
+      "id": "ai",
+      "name": "AI & 机器学习",
+      "icon": "🤖",
+      "description": "人工智能、深度学习相关"
+    },
+    {
+      "id": "microcontroller",
+      "name": "单片机",
+      "icon": "⚡",
+      "description": "嵌入式开发、单片机教程"
+    },
+    {
+      "id": "frontend",
+      "name": "前端开发",
+      "icon": "🎨",
+      "description": "Vue、React、CSS 等"
+    }
+  ],
+  "articles": [
+    {
+      "id": "linux-server-security",
+      "title": "Linux 服务器安全配置最佳实践",
+      "category": "linux",
+      "summary": "从零开始构建安全的 Linux 服务器环境，包括 SSH 配置、防火墙设置、权限管理等内容。",
+      "date": "2025-12-20",
+      "readTime": 8,
+      "tags": ["SSH", "防火墙", "权限管理"],
+      "author": "Jia",
+      "featured": true,
+      "published": true
+    },
+    {
+      "id": "ai-model-finetuning",
+      "title": "AI 模型微调入门指南",
+      "category": "ai",
+      "summary": "详细介绍如何使用 Hugging Face Transformers 进行模型微调，涵盖数据处理、训练技巧等。",
+      "date": "2025-12-18",
+      "readTime": 12,
+      "tags": ["Hugging Face", "Transformers", "微调"],
+      "author": "Jia",
+      "featured": true,
+      "published": true
+    },
+    {
+      "id": "web-security-vulnerabilities",
+      "title": "网络安全：常见 Web 漏洞防护",
+      "category": "security",
+      "summary": "深入分析 XSS、CSRF、SQL 注入等常见 Web 漏洞，提供实用的防护方案。",
+      "date": "2025-12-15",
+      "readTime": 10,
+      "tags": ["XSS", "CSRF", "SQL注入"],
+      "author": "Jia",
+      "featured": false,
+      "published": true
+    },
+    {
+      "id": "stm32-development",
+      "title": "STM32 单片机开发实战",
+      "category": "microcontroller",
+      "summary": "从硬件搭建到软件开发，全面讲解 STM32 单片机的开发流程。",
+      "date": "2025-12-10",
+      "readTime": 15,
+      "tags": ["STM32", "嵌入式", "硬件"],
+      "author": "Jia",
+      "featured": false,
+      "published": true
+    }
+  ]
+}
