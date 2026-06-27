@@ -42,9 +42,15 @@ __screenshots__/
 *.db
 *.db-journal
 *.db-wal
+*.db-shm
 database/*.db
 database/*.db-journal
 database/*.db-wal
+database/*.db-shm
+server/database/*.db
+server/database/*.db-journal
+server/database/*.db-wal
+server/database/*.db-shm
 
 # Uploads (user uploaded files)
 uploads/
