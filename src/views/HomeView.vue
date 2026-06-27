@@ -1,29 +1,33 @@
 <template>
-  <div class="game-hub">
+  <div class="game-hub" @mousemove="onMouseMove" @mouseleave="onMouseLeave">
+    <!-- Animated ambient particles -->
+    <div class="ambient-particles"></div>
+
     <!-- Left Panel -->
-    <div class="left-panel">
+    <div class="left-panel" :style="leftPanelStyle">
       <!-- User Info -->
       <div class="user-info">
         <div class="level-block">
           <div class="flex items-baseline gap-1">
-            <span class="level-label">Lv.</span>
+            <span class="sys-label text-[10px] tracking-widest">LV</span>
             <span class="level-num">{{ userLevel }}</span>
           </div>
-          <div class="level-bar">
-            <div class="level-fill" :style="{ width: levelProgress + '%' }"></div>
+          <div class="progress-cyber w-[50%]">
+            <div :style="{ width: levelProgress + '%' }"></div>
           </div>
         </div>
         <div class="name-block">
           <span class="name-text">{{ displayName }}</span>
-          <span class="name-id">{{ authStore.user?.email || '访客模式' }}</span>
+          <span class="sys-label text-[11px]">{{ authStore.user?.email || 'GUEST_MODE' }}</span>
         </div>
       </div>
 
       <!-- Center: Controls + Nav -->
       <div class="center-section">
-        <!-- Navigation Buttons -->
         <div class="nav-grid">
           <div v-for="nav in navigations" :key="nav.title" class="nav-btn" @click="$router.push(nav.link)">
+            <div class="nav-bracket-tl"></div>
+            <div class="nav-bracket-br"></div>
             <span class="nav-title">{{ nav.title }}</span>
             <span class="nav-sub">{{ nav.sub }}</span>
           </div>
@@ -32,7 +36,6 @@
 
       <!-- Bottom: Banner + Activity -->
       <div class="bottom-section">
-        <!-- Banner Carousel -->
         <div class="banner-box">
           <div class="banner-track">
             <div class="banner-item" v-for="(b, i) in banners" :key="i">
@@ -42,18 +45,17 @@
             </div>
           </div>
         </div>
-        <!-- Activity Feed -->
         <div class="activity-box">
-          <div class="activity-icon">💬</div>
+          <div class="activity-icon">◆</div>
           <div class="activity-text">
-            <span class="activity-marquee">— Miya: {{ currentQuote }}</span>
+            <span class="activity-marquee">Miya: {{ currentQuote }}</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Right Panel -->
-    <div class="right-panel">
+    <div class="right-panel" :style="rightPanelStyle">
       <!-- Stats Bar -->
       <div class="stats-bar">
         <div class="stat-item" v-for="stat in stats" :key="stat.label">
@@ -67,10 +69,14 @@
       <div class="center-content">
         <!-- Top Status -->
         <div class="top-status">
+          <div class="flex items-center gap-2">
+            <span class="status-dot online"></span>
+            <span class="sys-label text-[11px]">SYS.NORM</span>
+          </div>
           <span class="status-time">{{ currentTime }}</span>
         </div>
 
-        <!-- Featured Card (Miya Character) -->
+        <!-- Featured Card (Miya) -->
         <div class="featured-card" @click="$router.push('/about-miya')">
           <div class="featured-avatar">
             <div class="mask-sweep"></div>
@@ -80,13 +86,13 @@
           </div>
           <div class="featured-info">
             <div class="featured-left">
-              <h3 class="featured-title">Miya 管家</h3>
-              <span class="featured-tag">在线·陪伴</span>
-              <span class="featured-status text-blue-400">状态: 活跃</span>
+              <h3 class="featured-title">Miya</h3>
+              <span class="sys-label text-[10px] tracking-wider">管家系统</span>
+              <span class="featured-status text-cyber-cyan">状态: 活跃</span>
             </div>
             <div class="featured-right">
               <span class="featured-pct">24/7</span>
-              <span class="text-xs text-gray-500">守护中</span>
+              <span class="text-[10px] text-hud-dim font-mono">守护中</span>
             </div>
           </div>
           <div class="featured-mascot">
@@ -97,10 +103,12 @@
         <!-- Quick Actions -->
         <div class="quick-actions">
           <div class="action-card" @click="$router.push('/library')">
+            <div class="action-bracket-tl"></div>
             <h4>图书馆</h4>
             <span>技术笔记</span>
           </div>
           <div class="action-card" @click="goShare">
+            <div class="action-bracket-tl"></div>
             <h4>资源站</h4>
             <span>文件分享</span>
             <div class="action-badge">NEW</div>
@@ -111,6 +119,7 @@
         <div class="community-card" @click="$router.push('/companions')">
           <span class="community-title">伴侣社区</span>
           <span class="community-sub">AI 伴侣·幻想创作</span>
+          <div class="community-icon">▸</div>
         </div>
       </div>
 
@@ -126,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, type CSSProperties } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
@@ -172,6 +181,40 @@ const bottomTabs = [
   { label: '采购', desc: '探索更多', link: '/culture' }
 ]
 
+// 3D parallax
+const mouseX = ref(0)
+const mouseY = ref(0)
+
+const leftPanelStyle = ref<CSSProperties>({})
+const rightPanelStyle = ref<CSSProperties>({})
+
+function onMouseMove(e: MouseEvent) {
+  const cx = window.innerWidth / 2
+  const cy = window.innerHeight / 2
+  mouseX.value = (e.clientX - cx) / cx
+  mouseY.value = (e.clientY - cy) / cy
+
+  leftPanelStyle.value = {
+    transform: `rotateY(${28 + mouseX.value * 4}deg) rotateX(${-mouseY.value * 2}deg) translateX(${mouseX.value * 4}px)`,
+    transition: 'transform 0.3s ease-out',
+  }
+  rightPanelStyle.value = {
+    transform: `rotateY(${-28 + mouseX.value * 4}deg) rotateX(${-mouseY.value * 2}deg) translateX(${mouseX.value * 4}px)`,
+    transition: 'transform 0.3s ease-out',
+  }
+}
+
+function onMouseLeave() {
+  leftPanelStyle.value = {
+    transform: 'rotateY(28deg) rotateX(0deg)',
+    transition: 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
+  }
+  rightPanelStyle.value = {
+    transform: 'rotateY(-28deg) rotateX(0deg)',
+    transition: 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
+  }
+}
+
 let quoteTimer: ReturnType<typeof setInterval>
 let timeTimer: ReturnType<typeof setInterval>
 
@@ -187,10 +230,10 @@ function goShare() {
 onMounted(() => {
   updateTime()
   timeTimer = setInterval(updateTime, 60000)
-  currentQuote.value = quotes[0]
+  currentQuote.value = quotes[0]!
   quoteTimer = setInterval(() => {
     quoteIndex.value = (quoteIndex.value + 1) % quotes.length
-    currentQuote.value = quotes[quoteIndex.value]
+    currentQuote.value = quotes[quoteIndex.value]!
   }, 5000)
 
   if (authStore.user?.username) {
@@ -220,16 +263,39 @@ onUnmounted(() => {
   z-index: 0;
 }
 
-/* Animated background particles */
+/* Animated ambient light */
 .game-hub::before {
   content: '';
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(39, 192, 254, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 50%, rgba(102, 126, 234, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 0%, rgba(39, 192, 254, 0.05) 0%, transparent 30%);
+    radial-gradient(ellipse at 20% 50%, rgba(0, 255, 245, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 50%, rgba(0, 173, 181, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 0%, rgba(0, 255, 245, 0.04) 0%, transparent 30%);
   pointer-events: none;
+  animation: ambientShift 8s ease-in-out infinite alternate;
+}
+
+@keyframes ambientShift {
+  0% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+/* Floating particles */
+.ambient-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 15% 25%, rgba(0, 255, 245, 0.3), transparent),
+    radial-gradient(1px 1px at 35% 65%, rgba(0, 255, 245, 0.2), transparent),
+    radial-gradient(1.5px 1.5px at 55% 15%, rgba(0, 173, 181, 0.3), transparent),
+    radial-gradient(1px 1px at 70% 45%, rgba(0, 255, 245, 0.2), transparent),
+    radial-gradient(1px 1px at 85% 75%, rgba(0, 173, 181, 0.3), transparent),
+    radial-gradient(1.5px 1.5px at 25% 80%, rgba(0, 255, 245, 0.2), transparent),
+    radial-gradient(1px 1px at 60% 85%, rgba(0, 255, 245, 0.25), transparent),
+    radial-gradient(1px 1px at 40% 10%, rgba(0, 173, 181, 0.2), transparent);
+  animation: float 6s ease-in-out infinite;
 }
 
 /* ========== Left Panel ========== */
@@ -243,6 +309,7 @@ onUnmounted(() => {
   justify-content: center;
   transform: rotateY(28deg);
   z-index: 1;
+  will-change: transform;
 }
 
 .user-info {
@@ -259,32 +326,14 @@ onUnmounted(() => {
 }
 .level-block:hover {
   letter-spacing: 0.15em;
-  background: rgba(129, 191, 241, 0.12);
+  background: rgba(0, 255, 245, 0.06);
   border-radius: 6px;
 }
 
-.level-label {
-  color: #aab;
-  font-size: 0.8em;
-}
 .level-num {
   color: #fff;
   font-size: 2.5em;
   font-weight: bold;
-}
-
-.level-bar {
-  width: 40%;
-  height: 3px;
-  background: #333;
-  border-radius: 2px;
-  margin-top: 2px;
-}
-.level-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #27c0fe, #667eea);
-  border-radius: 2px;
-  transition: width 1.5s ease;
 }
 
 .name-block {
@@ -298,13 +347,7 @@ onUnmounted(() => {
   font-weight: bold;
   transition: all 0.3s;
 }
-.name-id {
-  color: #889;
-  font-size: 0.9em;
-  transition: all 0.3s;
-}
-.name-block:hover .name-text,
-.name-block:hover .name-id {
+.name-block:hover .name-text {
   color: #f87171;
   letter-spacing: 0.15em;
 }
@@ -334,11 +377,14 @@ onUnmounted(() => {
   justify-content: flex-start;
   cursor: pointer;
   transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
 }
 .nav-btn:hover {
-  background: rgba(129, 191, 241, 0.2);
-  transform: skewX(-8deg);
-  border-color: rgba(129, 191, 241, 0.3);
+  background: rgba(0, 255, 245, 0.1);
+  transform: skewX(-8deg) scale(1.05);
+  border-color: rgba(0, 255, 245, 0.25);
+  box-shadow: 0 0 25px rgba(0, 255, 245, 0.1);
 }
 
 .nav-title {
@@ -407,10 +453,12 @@ onUnmounted(() => {
   background: rgba(0, 0, 0, 0.75);
   height: auto;
   min-height: 160px;
+  border-color: rgba(0, 255, 245, 0.15);
 }
 .activity-icon {
   flex-shrink: 0;
   font-size: 14px;
+  color: var(--hud-cyan, #00FFF5);
 }
 .activity-text {
   overflow: hidden;
@@ -435,6 +483,7 @@ onUnmounted(() => {
   justify-content: center;
   transform: rotateY(-28deg);
   z-index: 1;
+  will-change: transform;
 }
 
 .stats-bar {
@@ -458,7 +507,8 @@ onUnmounted(() => {
   transition: all 0.3s;
 }
 .stat-item:hover {
-  background: rgba(129, 191, 241, 0.18);
+  background: rgba(0, 255, 245, 0.1);
+  border-color: rgba(0, 255, 245, 0.2);
 }
 .stat-icon {
   font-size: 16px;
@@ -476,11 +526,15 @@ onUnmounted(() => {
   color: #fff;
   font-size: 1.3em;
   font-weight: bold;
-  background: rgba(39, 192, 254, 0.5);
+  background: rgba(0, 255, 245, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 0 4px 4px 0;
+  transition: all 0.3s;
+}
+.stat-item:hover .stat-add {
+  background: rgba(0, 255, 245, 0.4);
 }
 
 /* Center Content */
@@ -494,14 +548,16 @@ onUnmounted(() => {
 .top-status {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   height: 28px;
+  padding: 0 8px;
 }
 .status-time {
   color: #fff;
   font-size: 1.1em;
   cursor: pointer;
   transition: all 0.3s;
+  font-family: 'JetBrains Mono', monospace;
 }
 .status-time:hover {
   color: #f87171;
@@ -520,11 +576,13 @@ onUnmounted(() => {
   padding: 8px 12px;
   cursor: pointer;
   transition: all 0.4s;
+  position: relative;
 }
 .featured-card:hover {
-  background: rgba(129, 191, 241, 0.15);
-  transform: rotateY(-8deg);
-  border-color: rgba(129, 191, 241, 0.25);
+  background: rgba(0, 255, 245, 0.08);
+  transform: rotateY(-8deg) scale(1.02);
+  border-color: rgba(0, 255, 245, 0.2);
+  box-shadow: 0 0 30px rgba(0, 255, 245, 0.08);
 }
 
 .featured-avatar {
@@ -587,9 +645,14 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 3px solid rgba(255, 255, 255, 0.4);
+  border: 3px solid rgba(0, 255, 245, 0.3);
   border-radius: 50%;
   min-width: 65px;
+  transition: all 0.3s;
+}
+.featured-card:hover .featured-right {
+  border-color: rgba(0, 255, 245, 0.6);
+  box-shadow: 0 0 20px rgba(0, 255, 245, 0.15);
 }
 .featured-pct {
   color: #fff;
@@ -609,7 +672,7 @@ onUnmounted(() => {
 }
 .featured-mascot:hover {
   transform: scale(1.3);
-  color: #27c0fe;
+  color: #00fff5;
 }
 
 /* Quick Actions */
@@ -630,8 +693,9 @@ onUnmounted(() => {
   transition: all 0.3s;
 }
 .action-card:hover {
-  background: rgba(129, 191, 241, 0.15);
-  transform: rotateY(-6deg);
+  background: rgba(0, 255, 245, 0.08);
+  transform: rotateY(-6deg) scale(1.03);
+  border-color: rgba(0, 255, 245, 0.2);
 }
 .action-card h4 {
   color: #fff;
@@ -659,31 +723,43 @@ onUnmounted(() => {
   align-items: center;
   gap: 12px;
   height: 42px;
-  background: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 6px;
   padding: 0 16px;
   cursor: pointer;
   transition: all 0.4s;
 }
 .community-card:hover {
-  background: rgba(129, 191, 241, 0.2);
-  width: 100%;
+  background: rgba(0, 255, 245, 0.12);
+  border-color: rgba(0, 255, 245, 0.2);
+  box-shadow: 0 0 25px rgba(0, 255, 245, 0.08);
 }
 .community-title {
   font-size: 1.3em;
   font-weight: bold;
-  color: #111;
+  color: #e0e0e0;
   transition: color 0.3s;
 }
 .community-sub {
-  color: #666;
+  color: #888;
   font-size: 0.8em;
+  transition: color 0.3s;
+}
+.community-icon {
+  margin-left: auto;
+  color: rgba(0, 255, 245, 0.4);
+  transition: all 0.3s;
 }
 .community-card:hover .community-title {
   color: #fff;
 }
 .community-card:hover .community-sub {
-  color: #ccc;
+  color: #bbb;
+}
+.community-card:hover .community-icon {
+  color: rgba(0, 255, 245, 0.8);
+  transform: translateX(4px);
 }
 
 /* Bottom Tabs */
@@ -707,8 +783,8 @@ onUnmounted(() => {
   border-radius: 6px;
 }
 .tab-item:hover {
-  background: rgba(129, 191, 241, 0.15);
-  text-shadow: 10px 5px 8px rgba(255, 255, 255, 0.3);
+  background: rgba(0, 255, 245, 0.06);
+  box-shadow: 0 0 15px rgba(0, 255, 245, 0.05);
 }
 .tab-item h3 {
   color: #fff;
@@ -749,7 +825,7 @@ onUnmounted(() => {
   }
 }
 
-/* Responsive: collapse to single column */
+/* Responsive */
 @media (max-width: 768px) {
   .game-hub {
     flex-direction: column;
@@ -761,7 +837,9 @@ onUnmounted(() => {
     height: auto;
     margin: 0;
     padding: 16px;
-    transform: none;
+    transform: none !important;
   }
+  .left-panel { margin-top: 20px; }
+  .right-panel { margin-bottom: 20px; }
 }
 </style>

@@ -19,6 +19,21 @@
   :root {
     --content-overlay-bg: transparent;
     --content-overlay-text: inherit;
+
+    /* HUD Design Tokens */
+    --hud-cyan: #00FFF5;
+    --hud-teal: #00ADB5;
+    --hud-blue: #3ba6d5;
+    --hud-gold: #ffd700;
+    --hud-red: #f87171;
+    --hud-pink: #ff6b9d;
+    --hud-bg: #0a0a1a;
+    --hud-surface: rgba(0, 0, 0, 0.55);
+    --hud-border: rgba(255, 255, 255, 0.08);
+    --hud-glow: rgba(0, 255, 245, 0.15);
+    --hud-text: #e4ecf0;
+    --hud-dim: rgba(228, 236, 240, 0.45);
+    --hud-accent-glow: 0 0 20px rgba(0, 255, 245, 0.2);
   }
 }
 
@@ -82,6 +97,126 @@
 
   .badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  /* ========== Sci-Fi HUD Components ========== */
+
+  /* Chamfered corner card with corner brackets */
+  .cyber-card {
+    @apply relative overflow-hidden;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.35));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    clip-path: polygon(
+      0 8px, 6px 0,
+      calc(100% - 6px) 0, 100% 8px,
+      100% calc(100% - 6px), calc(100% - 6px) 100%,
+      6px 100%, 0 calc(100% - 6px)
+    );
+  }
+
+  .cyber-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0, 255, 245, 0.03), transparent);
+    pointer-events: none;
+  }
+
+  /* Corner bracket decorations */
+  .cyber-brackets::after {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 20px;
+    height: 20px;
+    border-top: 2px solid var(--hud-cyan);
+    border-left: 2px solid var(--hud-cyan);
+    opacity: 0.5;
+    transition: opacity 0.3s;
+  }
+
+  .cyber-brackets:hover::after {
+    opacity: 1;
+  }
+
+  /* Gloss sweep overlay */
+  .gloss-sweep {
+    @apply relative overflow-hidden;
+  }
+
+  .gloss-sweep::after {
+    content: '';
+    position: absolute;
+    top: -20%;
+    left: -30%;
+    width: 8px;
+    height: 140%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: skewX(-25deg);
+    filter: blur(4px);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+    z-index: 2;
+    pointer-events: none;
+    animation: glossSweep 3s ease-in-out infinite;
+  }
+
+  /* Status dot (pulsing) */
+  .status-dot {
+    @apply inline-block w-2 h-2 rounded-full;
+  }
+  .status-dot.online {
+    background: var(--hud-cyan);
+    box-shadow: 0 0 8px var(--hud-cyan);
+    animation: dotBeat 1.5s ease-in-out infinite;
+  }
+  .status-dot.offline {
+    background: var(--hud-red);
+    box-shadow: 0 0 8px var(--hud-red);
+    opacity: 0.6;
+  }
+
+  /* System label in monospace */
+  .sys-label {
+    @apply font-mono text-xs tracking-wider uppercase;
+    color: var(--hud-dim);
+  }
+  .sys-label.active {
+    color: var(--hud-cyan);
+  }
+
+  /* HUD text gradient */
+  .text-hud {
+    @apply bg-clip-text text-transparent font-bold;
+    background-image: linear-gradient(135deg, var(--hud-cyan), var(--hud-teal));
+  }
+
+  /* Glow border on hover */
+  .glow-hover {
+    transition: all 0.3s ease;
+  }
+  .glow-hover:hover {
+    box-shadow: 0 0 30px rgba(0, 255, 245, 0.15), 0 0 60px rgba(0, 255, 245, 0.05);
+    border-color: rgba(0, 255, 245, 0.3);
+  }
+
+  /* SkewX hover effect (PGR style) */
+  .skew-hover {
+    transition: all 0.3s ease;
+  }
+  .skew-hover:hover {
+    transform: skewX(-5deg) scale(1.03);
+  }
+
+  /* Progress bar - cyan gradient */
+  .progress-cyber {
+    @apply h-1 rounded-full overflow-hidden;
+    background: rgba(255, 255, 255, 0.1);
+  }
+  .progress-cyber > div {
+    @apply h-full rounded-full;
+    background: linear-gradient(90deg, var(--hud-cyan), var(--hud-teal));
+    transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
   }
 }
 

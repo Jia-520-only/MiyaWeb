@@ -1,5 +1,6 @@
 <template>
-  <footer class="bg-gray-900/95 dark:bg-gray-950/95 backdrop-blur-lg text-white border-t border-gray-700/50">
+  <footer class="bg-gray-900/95 dark:bg-gray-950/95 backdrop-blur-lg text-white border-t border-gray-700/50 relative">
+    <div class="h-0.5 bg-gradient-to-r from-transparent via-cyber-cyan/30 to-transparent"></div>
     <div class="container mx-auto px-4 py-4">
       <div class="flex flex-col md:flex-row justify-between items-center gap-3">
         <!-- 左侧：网站信息 -->

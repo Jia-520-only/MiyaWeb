@@ -1,13 +1,17 @@
 <template>
   <header class="fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl bg-glass-light dark:bg-glass-dark border-b border-glass-border dark:border-glass-borderDark">
+    <!-- Status bar line -->
+    <div class="h-0.5 bg-gradient-to-r from-cyber-cyan/40 via-cyber-teal/20 to-transparent"></div>
+
     <nav class="container mx-auto px-6 py-3">
       <div class="flex items-center justify-between">
         <!-- Logo -->
-        <router-link to="/" class="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
-          <div class="w-8 h-8 bg-gradient-to-br from-primary-400 to-secondary-400 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-glass">
+        <router-link to="/" class="flex items-center gap-2.5 group">
+          <div class="w-8 h-8 bg-gradient-to-br from-cyber-cyan to-cyber-teal rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-glow-cyan group-hover:shadow-cyber-lg transition-all duration-300">
             M
           </div>
           <span class="text-lg font-semibold text-gray-900 dark:text-white tracking-tight">jiaandmiya</span>
+          <span class="hidden sm:inline font-mono text-[10px] tracking-widest text-cyber-teal/50 dark:text-cyber-cyan/40">SYS.ONLINE</span>
         </router-link>
 
         <!-- Desktop Navigation -->
@@ -16,7 +20,7 @@
             v-for="item in navItems"
             :key="item.path"
             :to="item.path"
-            class="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg hover:bg-white/40 dark:hover:bg-gray-700/40 transition-all duration-200"
+            class="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg hover:bg-white/40 dark:hover:bg-gray-700/40 transition-all duration-200 skew-hover"
             active-class="!text-primary-600 dark:!text-primary-400 !bg-primary-50/50 dark:!bg-primary-900/20"
           >
             <Icon :name="item.icon" size="sm" />
