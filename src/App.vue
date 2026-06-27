@@ -1,7 +1,6 @@
 <template>
   <div class="min-h-screen flex flex-col relative z-10">
     <PageBackground />
-    <SciFiOverlay :visible="showHudOverlay && $route.path !== '/'" />
     <Header />
     <main class="flex-grow pt-20">
       <router-view v-slot="{ Component }">
@@ -23,11 +22,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import Header from './components/Header.vue'
 import Footer from './components/Footer.vue'
 import PageBackground from './components/PageBackground.vue'
-import SciFiOverlay from './components/SciFiOverlay.vue'
 import BackgroundEditor from './components/BackgroundEditor.vue'
 import MiyaChat from './components/MiyaChat.vue'
 import { useThemeStore } from './stores/theme'
@@ -35,7 +33,6 @@ import { useAuthStore } from './stores/auth'
 
 const themeStore = useThemeStore()
 const authStore = useAuthStore()
-const showHudOverlay = ref(true)
 
 let unwatchSystemTheme: (() => void) | undefined
 

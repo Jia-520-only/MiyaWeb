@@ -13,7 +13,7 @@
       <div class="absolute inset-0 bg-gradient-to-t from-white/60 dark:from-gray-900/60 to-transparent" />
       <div class="absolute bottom-0 left-0 right-0 px-6 md:px-12 pb-6">
         <div class="flex items-end gap-6">
-          <div class="w-24 h-24 md:w-28 md:h-28 rounded-2xl shadow-lg overflow-hidden ring-4 ring-white dark:ring-gray-800 bg-white dark:bg-gray-700">
+          <div class="relative w-24 h-24 md:w-28 md:h-28 rounded-2xl shadow-lg overflow-hidden ring-4 ring-white dark:ring-gray-800 bg-white dark:bg-gray-700 group">
             <img
               v-if="profile?.avatar"
               :src="profile.avatar"
@@ -23,13 +23,15 @@
             <div v-else class="w-full h-full bg-gradient-to-br from-cyan-300 to-teal-400 flex items-center justify-center text-4xl text-white">
               M
             </div>
+            <!-- Pulsing ring on hover -->
+            <div class="absolute inset-0 rounded-2xl ring-2 ring-cyber-cyan/0 group-hover:ring-cyber-cyan/40 transition-all duration-500 pointer-events-none" />
           </div>
           <div class="pb-2">
             <h1 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white tracking-tight">
               {{ profile?.display_name || 'Miya' }}
             </h1>
-            <p class="text-sm text-gray-500 dark:text-gray-300 mt-1">
-              虚拟管家 · AI 助手
+            <p class="text-sm text-gray-500 dark:text-gray-300 mt-1 font-mono">
+              SYS.管家 · AI 助手
             </p>
           </div>
         </div>
@@ -37,7 +39,6 @@
     </div>
 
     <div class="container mx-auto px-4 md:px-8 py-8">
-      <!-- 操作栏 -->
       <div v-if="authStore.canEdit" class="flex justify-end mb-6">
         <button
           @click="toggleEdit"
@@ -49,36 +50,34 @@
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- 左侧：简介 + 社交链接 -->
+        <!-- 左侧 -->
         <div class="lg:col-span-1 space-y-6">
-          <!-- 角色卡片 -->
-          <div class="glass-panel p-6 rounded-2xl">
+          <div class="glass-panel p-6 rounded-2xl glow-hover animate-fade-in">
             <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
               <Icon name="solar:star-bold" size="sm" class="text-amber-500" />
               角色设定
             </h3>
             <div class="space-y-3 text-sm text-gray-600 dark:text-gray-300">
-              <div class="flex items-center gap-3">
+              <div class="flex items-center gap-3 hover:text-rose-500 dark:hover:text-rose-400 transition-colors duration-300">
                 <Icon name="solar:cupcake-linear" size="sm" class="text-rose-400" />
                 <span>生日：2025-01-01</span>
               </div>
-              <div class="flex items-center gap-3">
+              <div class="flex items-center gap-3 hover:text-pink-500 dark:hover:text-pink-400 transition-colors duration-300">
                 <Icon name="solar:heart-linear" size="sm" class="text-pink-400" />
                 <span>性格：温柔、细心、偶尔调皮</span>
               </div>
-              <div class="flex items-center gap-3">
+              <div class="flex items-center gap-3 hover:text-violet-500 dark:hover:text-violet-400 transition-colors duration-300">
                 <Icon name="solar:palette-linear" size="sm" class="text-violet-400" />
                 <span>喜好：技术分享、阅读、咖啡</span>
               </div>
-              <div class="flex items-center gap-3">
+              <div class="flex items-center gap-3 hover:text-sky-500 dark:hover:text-sky-400 transition-colors duration-300">
                 <Icon name="solar:rocket-linear" size="sm" class="text-sky-400" />
                 <span>特长：网站管理、内容整理、陪伴</span>
               </div>
             </div>
           </div>
 
-          <!-- 联系方式 -->
-          <div class="glass-panel p-6 rounded-2xl">
+          <div class="glass-panel p-6 rounded-2xl glow-hover animate-fade-in" style="animation-delay: 0.1s">
             <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
               <Icon name="solar:link-round-linear" size="sm" class="text-cyan-500" />
               联系方式
@@ -91,7 +90,7 @@
                   :href="link.url"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors"
+                  class="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all duration-300 hover:translate-x-1"
                 >
                   <Icon :name="link.icon || 'solar:link-linear'" size="sm" />
                   <span>{{ link.label }}</span>
@@ -100,7 +99,7 @@
               <template v-else>
                 <a
                   href="mailto:contact@jiaandmiya.com"
-                  class="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors"
+                  class="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all duration-300 hover:translate-x-1"
                 >
                   <Icon name="solar:letter-linear" size="sm" />
                   <span>contact@jiaandmiya.com</span>
@@ -110,10 +109,9 @@
           </div>
         </div>
 
-        <!-- 右侧：详细介绍 -->
+        <!-- 右侧 -->
         <div class="lg:col-span-2 space-y-6">
-          <!-- 编辑模式 -->
-          <div v-if="isEditing" class="glass-panel p-6 rounded-2xl space-y-5">
+          <div v-if="isEditing" class="glass-panel p-6 rounded-2xl space-y-5 animate-fade-in">
             <h3 class="text-lg font-semibold text-gray-800 dark:text-white">编辑弥娅资料</h3>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -163,15 +161,14 @@
 
             <div class="flex gap-3 justify-end">
               <button @click="cancelEdit" class="btn-ghost">取消</button>
-              <button @click="saveProfile" class="bg-cyan-500 hover:bg-cyan-600 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors">
+              <button @click="saveProfile" class="bg-cyan-500 hover:bg-cyan-600 text-white px-5 py-2 rounded-xl text-sm font-medium transition-all duration-300 hover:shadow-glow-cyan active:scale-95">
                 保存
               </button>
             </div>
           </div>
 
-          <!-- 展示模式 -->
           <template v-else>
-            <div class="glass-panel p-6 md:p-8 rounded-2xl">
+            <div class="glass-panel p-6 md:p-8 rounded-2xl glow-hover animate-fade-in">
               <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
                 <Icon name="solar:document-text-linear" size="sm" class="text-teal-500" />
                 {{ profile?.bio_type === 'txt' ? '简介' : '介绍' }}
@@ -188,14 +185,13 @@
               </div>
             </div>
 
-            <!-- Miya 寄语 -->
-            <div class="glass-panel p-6 md:p-8 rounded-2xl text-center">
-              <Icon name="solar:stars-minimalistic-linear" size="lg" class="text-amber-400 mb-3" />
+            <div class="glass-panel p-6 md:p-8 rounded-2xl text-center glow-hover animate-fade-in" style="animation-delay: 0.1s">
+              <Icon name="solar:stars-minimalistic-linear" size="lg" class="text-amber-400 mb-3 animate-float" />
               <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">Miya 想说</h3>
               <p class="text-gray-600 dark:text-gray-300 text-base italic leading-relaxed mb-4">
                 "很高兴在这里遇见你！无论是技术探讨，还是生活分享，Miya 都会用心陪伴。让我们一起成长，一起创造美好的回忆吧！"
               </p>
-              <div class="text-cyan-500 dark:text-cyan-400 text-sm font-medium">
+              <div class="text-cyan-500 dark:text-cyan-400 text-sm font-medium font-mono">
                 — Miya 在线当管家
               </div>
             </div>
@@ -315,3 +311,13 @@ async function saveProfile() {
 
 onMounted(loadProfile)
 </script>
+
+<style scoped>
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out both;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>

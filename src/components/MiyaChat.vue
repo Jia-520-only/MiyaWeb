@@ -4,14 +4,15 @@
     <button
       v-if="!isOpen"
       @click="handleClick"
-      class="fixed bottom-24 right-6 z-40 w-14 h-14 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 flex items-center justify-center group"
+      class="fixed bottom-24 right-6 z-40 w-14 h-14 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-2xl shadow-glow-cyan hover:shadow-cyber-lg transition-all duration-300 hover:scale-110 flex items-center justify-center group"
       title="问弥娅"
     >
-      <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center text-primary-600 font-bold text-lg">
+      <div class="absolute inset-0 rounded-2xl ring-2 ring-cyan-400/30 animate-glow-pulse pointer-events-none" />
+      <div class="w-8 h-8 bg-white rounded-xl flex items-center justify-center text-teal-600 font-bold text-lg">
         弥
       </div>
-      <span class="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-        问弥娅
+      <span class="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap font-mono">
+        > 问弥娅
       </span>
     </button>
   </transition>
@@ -21,18 +22,21 @@
     <Transition name="slide-up">
       <div
         v-if="isOpen"
-        class="fixed bottom-24 right-6 z-50 w-96 max-h-[600px] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+        class="fixed bottom-24 right-6 z-50 w-96 max-h-[600px] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200/50 dark:border-gray-700/50"
       >
         <!-- 头部 -->
-        <div class="bg-gradient-to-r from-primary-500 to-secondary-500 p-4 text-white">
+        <div class="bg-gradient-to-r from-cyan-500 to-teal-500 p-4 text-white">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-xl font-bold">
+              <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl font-bold">
                 弥
               </div>
               <div>
-                <h3 class="font-bold">弥娅</h3>
-                <p class="text-xs text-white/80">在线当管家 ✨</p>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-bold">弥娅</h3>
+                  <span class="status-dot online w-2 h-2" />
+                </div>
+                <p class="text-xs text-white/70 font-mono tracking-wider">SYS.管家·在线</p>
               </div>
             </div>
             <div class="flex gap-2">
@@ -59,17 +63,17 @@
         </div>
 
         <!-- 消息列表 -->
-        <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-800">
+        <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-800" ref="msgList">
           <!-- AI 配置提示 -->
-          <div v-if="!isConfigured" class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 text-sm">
-            <p class="text-yellow-800 dark:text-yellow-200">
-              ⚠️ AI 尚未配置，请联系管理员配置 API Key
+          <div v-if="!isConfigured" class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-3 text-sm">
+            <p class="text-yellow-800 dark:text-yellow-200 text-xs font-mono">
+              ⚠ AI 尚未配置，请联系管理员配置 API Key
             </p>
           </div>
 
           <!-- 欢迎消息 -->
-          <div v-if="messages.length === 0" class="text-center py-8">
-            <div class="w-16 h-16 bg-gradient-to-br from-primary-400 to-secondary-500 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
+          <div v-if="messages.length === 0" class="text-center py-8 animate-fade-in">
+            <div class="w-16 h-16 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-2xl flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4 shadow-glow-teal">
               弥
             </div>
             <p class="text-gray-600 dark:text-gray-400 text-sm">
@@ -79,68 +83,65 @@
           </div>
 
           <!-- 消息 -->
-          <div
-            v-for="message in messages"
-            :key="message.id"
-            :class="[
-              'flex gap-3',
-              message.role === 'user' ? 'flex-row-reverse' : 'flex-row'
-            ]"
-          >
-            <!-- 头像 -->
+          <TransitionGroup name="msg">
             <div
+              v-for="message in messages"
+              :key="message.id"
               :class="[
-                'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0',
-                message.role === 'user'
-                  ? 'bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
-                  : 'bg-gradient-to-br from-primary-400 to-secondary-500 text-white'
+                'flex gap-3',
+                message.role === 'user' ? 'flex-row-reverse' : 'flex-row'
               ]"
             >
-              {{ message.role === 'user' ? '你' : '弥' }}
-            </div>
-
-            <!-- 消息内容 -->
-            <div
-              :class="[
-                'max-w-[75%] px-4 py-2 rounded-2xl',
-                message.role === 'user'
-                  ? 'bg-primary-500 text-white rounded-br-none'
-                  : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-none shadow-sm'
-              ]"
-            >
-              <!-- 图片 -->
-              <img
-                v-if="message.image"
-                :src="message.image"
-                alt="上传的图片"
-                class="max-w-full rounded-lg mb-2"
-              />
-
-              <!-- 文字内容 -->
-              <p class="whitespace-pre-wrap text-sm">{{ message.content }}</p>
-
-              <!-- 时间 -->
-              <p
+              <!-- 头像 -->
+              <div
                 :class="[
-                  'text-xs mt-1',
-                  message.role === 'user' ? 'text-white/70' : 'text-gray-400'
+                  'w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0',
+                  message.role === 'user'
+                    ? 'bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
+                    : 'bg-gradient-to-br from-cyan-400 to-teal-500 text-white'
                 ]"
               >
-                {{ formatTime(message.timestamp) }}
-              </p>
+                {{ message.role === 'user' ? '你' : '弥' }}
+              </div>
+
+              <!-- 消息气泡 -->
+              <div
+                :class="[
+                  'max-w-[75%] px-4 py-2 rounded-2xl',
+                  message.role === 'user'
+                    ? 'bg-primary-500 text-white rounded-br-none'
+                    : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-none shadow-sm'
+                ]"
+              >
+                <img
+                  v-if="message.image"
+                  :src="message.image"
+                  alt="上传的图片"
+                  class="max-w-full rounded-lg mb-2"
+                />
+                <p class="whitespace-pre-wrap text-sm">{{ message.content }}</p>
+                <p
+                  :class="[
+                    'text-[10px] mt-1 font-mono',
+                    message.role === 'user' ? 'text-white/60' : 'text-gray-400'
+                  ]"
+                >
+                  {{ formatTime(message.timestamp) }}
+                </p>
+              </div>
             </div>
-          </div>
+          </TransitionGroup>
 
           <!-- 加载动画 -->
           <div v-if="isLoading" class="flex gap-3">
-            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-secondary-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-400 to-teal-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
               弥
             </div>
             <div class="bg-white dark:bg-gray-700 px-4 py-3 rounded-2xl rounded-bl-none shadow-sm">
-              <div class="flex gap-1">
-                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+              <div class="flex gap-1.5">
+                <span class="loading-dot" />
+                <span class="loading-dot" style="animation-delay: 0.15s" />
+                <span class="loading-dot" style="animation-delay: 0.3s" />
               </div>
             </div>
           </div>
@@ -148,7 +149,6 @@
 
         <!-- 输入区域 -->
         <div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-          <!-- 图片预览 -->
           <div v-if="previewImage" class="relative inline-block mb-2">
             <img
               :src="previewImage"
@@ -163,15 +163,14 @@
             </button>
           </div>
 
-          <div class="flex gap-2">
-            <!-- 图片上传按钮 -->
+          <div class="flex gap-2 items-end">
             <button
               @click="triggerImageUpload"
               :disabled="isLoading || !isConfigured"
-              class="p-2 text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              class="p-2 text-gray-400 hover:text-cyan-500 dark:hover:text-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               title="上传图片"
             >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
               </svg>
             </button>
@@ -184,20 +183,22 @@
               class="hidden"
             />
 
-            <!-- 输入框 -->
-            <input
-              v-model="userInput"
-              @keypress.enter="sendMessage"
-              :disabled="isLoading || !isConfigured"
-              placeholder="问我关于网站的问题..."
-              class="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg border-0 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 text-gray-800 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-            />
+            <!-- 终端风格输入框 -->
+            <div class="flex-1 relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-400 font-mono text-sm pointer-events-none">></span>
+              <input
+                v-model="userInput"
+                @keypress.enter="sendMessage"
+                :disabled="isLoading || !isConfigured"
+                placeholder="输入消息..."
+                class="w-full pl-7 pr-3 py-2 bg-gray-100 dark:bg-gray-800 rounded-xl border-2 border-transparent focus:border-cyan-400/50 dark:focus:border-cyan-400/30 focus:ring-0 text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 text-sm font-mono disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 outline-none"
+              />
+            </div>
 
-            <!-- 发送按钮 -->
             <button
               @click="sendMessage"
               :disabled="isLoading || !userInput.trim() || !isConfigured"
-              class="px-4 py-2 bg-primary-500 hover:bg-primary-600 disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white rounded-lg transition-colors disabled:cursor-not-allowed"
+              class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 disabled:from-gray-300 disabled:to-gray-300 dark:disabled:from-gray-700 dark:disabled:to-gray-700 text-white rounded-xl transition-all duration-300 disabled:cursor-not-allowed hover:shadow-glow-cyan active:scale-95"
             >
               <svg v-if="isLoading" class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -234,34 +235,28 @@ const handleClick = () => {
   chatStore.openChat()
 }
 
-// 清空对话
 const clearChat = () => {
   if (confirm('确定要清空对话吗？')) {
     chatStore.clearMessages()
   }
 }
 
-// 触发图片上传
 const triggerImageUpload = () => {
   imageInput.value?.click()
 }
 
-// 处理图片上传
 const handleImageUpload = (event: Event) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
   if (file) {
-    // 验证文件类型
     if (!file.type.startsWith('image/')) {
       alert('请上传图片文件')
       return
     }
-    // 验证文件大小 (最大 5MB)
     if (file.size > 5 * 1024 * 1024) {
       alert('图片大小不能超过 5MB')
       return
     }
-
     const reader = new FileReader()
     reader.onload = (e) => {
       previewImage.value = e.target?.result as string
@@ -269,18 +264,14 @@ const handleImageUpload = (event: Event) => {
     }
     reader.readAsDataURL(file)
   }
-
-  // 清空 input，允许重复上传同一张图片
   target.value = ''
 }
 
-// 移除预览图片
 const removePreviewImage = () => {
   previewImage.value = null
   selectedImage.value = null
 }
 
-// 发送消息
 const sendMessage = async () => {
   if (!userInput.value.trim() && !selectedImage.value) return
   if (!isConfigured) {
@@ -291,22 +282,16 @@ const sendMessage = async () => {
   const message = userInput.value.trim()
   const image = selectedImage.value
 
-  // 添加用户消息
   chatStore.addUserMessage(message || '分析这张图片', image)
 
-  // 清空输入
   userInput.value = ''
   previewImage.value = null
   selectedImage.value = null
 
-  // 设置加载状态
   chatStore.setLoading(true)
 
   try {
-    // 调用 AI
     const response = await askMiya(message, image)
-
-    // 添加助手消息
     chatStore.addAssistantMessage(response)
   } catch (error) {
     console.error('AI 问答失败:', error)
@@ -316,21 +301,15 @@ const sendMessage = async () => {
   }
 }
 
-// 格式化时间
 const formatTime = (timestamp: Date) => {
   const date = new Date(timestamp)
   const now = new Date()
   const diff = now.getTime() - date.getTime()
 
-  if (diff < 60000) {
-    return '刚刚'
-  } else if (diff < 3600000) {
-    return `${Math.floor(diff / 60000)} 分钟前`
-  } else if (diff < 86400000) {
-    return `${Math.floor(diff / 3600000)} 小时前`
-  } else {
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  }
+  if (diff < 60000) return '刚刚'
+  else if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`
+  else if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`
+  else return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 </script>
 
@@ -339,7 +318,6 @@ const formatTime = (timestamp: Date) => {
 .fade-leave-active {
   transition: opacity 0.3s ease;
 }
-
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
@@ -347,16 +325,52 @@ const formatTime = (timestamp: Date) => {
 
 .slide-up-enter-active,
 .slide-up-leave-active {
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-
 .slide-up-enter-from {
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(20px) scale(0.95);
 }
-
 .slide-up-leave-to {
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(20px) scale(0.95);
+}
+
+/* Message entrance */
+.msg-enter-active {
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.msg-leave-active {
+  transition: all 0.2s ease-in;
+}
+.msg-enter-from {
+  opacity: 0;
+  transform: translateY(12px) scale(0.96);
+}
+.msg-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+/* Loading dots */
+.loading-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #9ca3af;
+  display: inline-block;
+  animation: dotBounce 0.6s ease-in-out infinite;
+}
+@keyframes dotBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(-6px); opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out both;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>
