@@ -17,7 +17,6 @@
     </main>
     <Footer />
     <BackgroundEditor v-if="authStore.canEdit" />
-    <MiyaChat />
   </div>
 </template>
 
@@ -27,7 +26,6 @@ import Header from './components/Header.vue'
 import Footer from './components/Footer.vue'
 import PageBackground from './components/PageBackground.vue'
 import BackgroundEditor from './components/BackgroundEditor.vue'
-import MiyaChat from './components/MiyaChat.vue'
 import { useThemeStore } from './stores/theme'
 import { useAuthStore } from './stores/auth'
 
