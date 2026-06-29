@@ -561,10 +561,17 @@ const saveSectionContent = async (contentId: string, data: any[]) => {
     page: 'culture',
     section: contentId.replace('culture-', '').replace('gallery-', 'gallery-'),
   }
+  console.log('saveSectionContent payload:', JSON.stringify(payload).substring(0, 500))
   try {
     await contentAPI.updateContent(contentId, payload)
-  } catch {
-    await contentAPI.createContent(payload)
+  } catch (updateErr: any) {
+    console.warn('updateContent 失败:', JSON.stringify(updateErr))
+    try {
+      await contentAPI.createContent(payload)
+    } catch (createErr: any) {
+      console.error('createContent 也失败:', JSON.stringify(createErr))
+      throw createErr
+    }
   }
 }
 

@@ -1078,7 +1078,7 @@ const getGroupImageCount = (groupId: string) => galleryImages.value.filter((img:
 
 // ─── 人文区 CRUD ───
 const saveSectionContent = async (contentId: string, data: any[]) => {
-  const payload = { id: contentId, type: 'array', title: '', content: JSON.stringify(data), page: 'culture', section: contentId.replace('culture-', '') }
+  const payload = { id: contentId, type: 'array', title: cultureModalTitle.value || contentId, content: JSON.stringify(data), page: 'culture', section: contentId.replace('culture-', '') }
   try { await contentAPI.updateContent(contentId, payload) } catch { await contentAPI.createContent(payload) }
 }
 

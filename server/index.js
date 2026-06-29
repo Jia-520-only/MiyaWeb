@@ -41,8 +41,11 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // 速率限制
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15分钟
-  max: 300 // 限制每个IP 300个请求
+  windowMs: 1 * 60 * 1000, // 1分钟窗口
+  max: 200, // 每分钟200个请求，CMS页面多API调用需要较高限制
+  skipSuccessfulRequests: false,
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 app.use('/api/', limiter);
 

@@ -236,6 +236,7 @@ router.put('/:id', authenticate(), async (req, res) => {
     // 验证输入
     const validation = validateContentItem(req.body);
     if (!validation.isValid) {
+      console.warn('内容PUT验证失败:', JSON.stringify(validation.errors), 'body keys:', Object.keys(req.body));
       return res.status(400).json({ errors: validation.errors });
     }
     
