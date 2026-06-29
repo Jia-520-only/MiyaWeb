@@ -1,4 +1,5 @@
 const express = require('express');
+const fs = require('fs');
 const { dbAll, dbGet, dbRun } = require('../database/db');
 const { authenticate, hasPermission } = require('../utils/jwt');
 const { 
@@ -29,13 +30,14 @@ router.post('/single', authenticate(), upload.single('file'), async (req, res) =
     const fileInfo = await getFileInfo(req.file.path);
 
     // 自动压缩大图
+    let compressedPath = req.file.path;
     try {
-      await compressImage(req.file.path);
-      // 重新获取压缩后的文件信息
-      const newInfo = await getFileInfo(req.file.path.replace(/\.\w+$/, (m) => {
-        return fs.existsSync(req.file.path.replace(m, '.webp')) ? '.webp' : m;
-      }));
-      if (newInfo) Object.assign(fileInfo, newInfo);
+      const result = await compressImage(req.file.path);
+      if (result.compressed && result.newPath) {
+        compressedPath = result.newPath;
+        const newInfo = await getFileInfo(compressedPath);
+        if (newInfo) Object.assign(fileInfo, newInfo);
+      }
     } catch (compressErr) {
       console.warn('自动压缩失败:', compressErr.message);
     }
@@ -43,7 +45,7 @@ router.post('/single', authenticate(), upload.single('file'), async (req, res) =
     // 生成缩略图
     let thumbPath = null;
     try {
-      thumbPath = await generateThumbnail(req.file.path, req.file.filename);
+      thumbPath = await generateThumbnail(compressedPath, req.file.filename);
     } catch (thumbError) {
       console.warn('生成缩略图失败:', thumbError.message);
     }
@@ -58,7 +60,7 @@ router.post('/single', authenticate(), upload.single('file'), async (req, res) =
         req.user.userId,
         req.file.filename,
         req.file.originalname,
-        getRelativePath(req.file.path),
+        getRelativePath(compressedPath),
         fileInfo.mimeType,
         fileInfo.size,
         fileInfo.width || null,
@@ -76,13 +78,11 @@ router.post('/single', authenticate(), upload.single('file'), async (req, res) =
       [result.id]
     );
     
-    // 构建文件URL
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const fileUrl = `${baseUrl}${uploadedFile.path}`;
+    const fileUrl = uploadedFile.path;
     let thumbUrl = null;
     
     if (uploadedFile.thumb_path) {
-      thumbUrl = `${baseUrl}${uploadedFile.thumb_path}`;
+      thumbUrl = uploadedFile.thumb_path;
     }
     
     res.status(201).json({
@@ -105,8 +105,7 @@ router.post('/single', authenticate(), upload.single('file'), async (req, res) =
     });
     
   } catch (error) {
-    console.error('文件上传失败:', error);
-    cleanupTempFiles(req.file);
+    console.error('[UPLOAD ERROR]', error.message, error.code || '');
     res.status(500).json({ error: '文件上传失败' });
   }
 });
@@ -124,7 +123,6 @@ router.post('/multiple', authenticate(), upload.array('files', 10), async (req, 
       return res.status(400).json({ error: '请选择要上传的文件' });
     }
     
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
     const uploadedFiles = [];
     
     // 处理每个文件
@@ -167,12 +165,11 @@ router.post('/multiple', authenticate(), upload.array('files', 10), async (req, 
           [result.id]
         );
         
-        // 构建文件URL
-        const fileUrl = `${baseUrl}${uploadedFile.path}`;
+        const fileUrl = uploadedFile.path;
         let thumbUrl = null;
         
         if (uploadedFile.thumb_path) {
-          thumbUrl = `${baseUrl}${uploadedFile.thumb_path}`;
+          thumbUrl = uploadedFile.thumb_path;
         }
         
         uploadedFiles.push({
@@ -267,15 +264,12 @@ router.get('/', authenticate(), async (req, res) => {
     // 执行查询
     const files = await dbAll(query, params);
     
-    // 构建文件URL
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    
     const parsedFiles = files.map(file => {
-      const fileUrl = `${baseUrl}${file.path}`;
+      const fileUrl = file.path;
       let thumbUrl = null;
       
       if (file.thumb_path) {
-        thumbUrl = `${baseUrl}${file.thumb_path}`;
+        thumbUrl = file.thumb_path;
       }
       
       return {
@@ -342,13 +336,11 @@ router.get('/:id', authenticate(), async (req, res) => {
       return res.status(403).json({ error: '无权访问此文件' });
     }
     
-    // 构建文件URL
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const fileUrl = `${baseUrl}${file.path}`;
+    const fileUrl = file.path;
     let thumbUrl = null;
     
     if (file.thumb_path) {
-      thumbUrl = `${baseUrl}${file.thumb_path}`;
+      thumbUrl = file.thumb_path;
     }
     
     res.json({
@@ -426,7 +418,6 @@ router.delete('/:id', authenticate(), async (req, res) => {
     }
     
     // 从磁盘删除文件
-    const fs = require('fs');
     const path = require('path');
     
     try {
@@ -480,15 +471,12 @@ router.get('/gallery/images', async (req, res) => {
     
     const images = await dbAll(query, params);
     
-    // 构建URL
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    
     const parsedImages = images.map(img => {
-      const imageUrl = `${baseUrl}${img.path}`;
+      const imageUrl = img.path;
       let thumbUrl = null;
       
       if (img.thumb_path) {
-        thumbUrl = `${baseUrl}${img.thumb_path}`;
+        thumbUrl = img.thumb_path;
       }
       
       return {

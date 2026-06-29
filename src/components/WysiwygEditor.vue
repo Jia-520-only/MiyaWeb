@@ -1,22 +1,22 @@
-<template>
+﻿<template>
   <div class="wysiwyg-editor">
     <!-- Toolbar -->
-    <div class="flex flex-wrap gap-1 p-2 bg-gray-50 dark:bg-gray-800/80 rounded-t-xl border border-b-0 border-gray-200 dark:border-gray-700">
-      <button v-for="tool in tools" :key="tool.name" @click="tool.action()" class="px-2 py-1.5 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg text-xs transition-colors" :title="tool.title" :class="{ 'bg-primary-50 dark:bg-primary-900/30 text-primary-600': tool.isActive?.() }">
+    <div class="flex flex-wrap gap-1 p-2 bg-white/3 rounded-t-xl border border-b-0 border-white/8">
+      <button v-for="tool in tools" :key="tool.name" @click="tool.action()" class="px-2 py-1.5 bg-black/35 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg text-xs transition-colors" :title="tool.title" :class="{ 'bg-primary-50 dark:bg-primary-900/30 text-primary-600': tool.isActive?.() }">
         <Icon v-if="tool.icon" :name="tool.icon" size="sm" />
         <span v-else>{{ tool.label }}</span>
       </button>
       <div class="flex-grow" />
-      <button @click="triggerUpload" class="px-2 py-1.5 bg-white dark:bg-gray-700 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg text-xs transition-colors" title="插入图片">
+      <button @click="triggerUpload" class="px-2 py-1.5 bg-black/35 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg text-xs transition-colors" title="插入图片">
         <Icon name="solar:gallery-add-bold" size="sm" />
       </button>
-      <button @click="showImageManager = true" class="px-2 py-1.5 bg-white dark:bg-gray-700 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg text-xs transition-colors" title="图片管理器">
+      <button @click="showImageManager = true" class="px-2 py-1.5 bg-black/35 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg text-xs transition-colors" title="图片管理器">
         <Icon name="solar:gallery-bold" size="sm" />
       </button>
     </div>
 
     <!-- Editor -->
-    <div class="rounded-b-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="rounded-b-xl border border-white/8 overflow-hidden">
       <EditorContent :editor="editor" class="wysiwyg-content" />
     </div>
 
@@ -25,10 +25,10 @@
 
     <!-- Image Manager Modal (reuse) -->
     <div v-if="showImageManager" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click.self="showImageManager = false">
-      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[80vh] flex flex-col mx-4">
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">图片管理器</h3>
-          <button @click="showImageManager = false" class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+      <div class="bg-black/40 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[80vh] flex flex-col mx-4">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-white/8">
+          <h3 class="text-lg font-semibold text-white">图片管理器</h3>
+          <button @click="showImageManager = false" class="p-1 hover:bg-white/5 rounded-lg transition-colors">
             <Icon name="solar:close-circle-bold" size="md" />
           </button>
         </div>

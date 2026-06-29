@@ -23,7 +23,11 @@ router.get('/', optionalAuthenticate, async (req, res) => {
     
     let query = `
       SELECT 
-        a.*,
+        a.id, a.title, a.slug, a.category_id, a.author_id,
+        a.summary, a.cover_image, a.read_time, a.tags,
+        a.view_count, a.like_count, a.comment_count,
+        a.is_published, a.is_featured, a.published_at,
+        a.created_at, a.updated_at,
         u.username as author_username,
         u.display_name as author_display_name,
         u.avatar as author_avatar,
@@ -434,23 +438,14 @@ router.delete('/:id', authenticate(), async (req, res) => {
 // 获取所有分类（公开接口）
 router.get('/categories/all', async (req, res) => {
   try {
-    const categories = await dbAll(
-      'SELECT id, name, slug, description, icon FROM categories WHERE is_active = 1 ORDER BY sort_order, name'
-    );
-    
-    // 获取每个分类的文章数量
-    const categoriesWithCount = await Promise.all(
-      categories.map(async (category) => {
-        const countResult = await dbGet(
-          'SELECT COUNT(*) as count FROM articles WHERE category_id = ? AND is_published = 1',
-          [category.id]
-        );
-        
-        return {
-          ...category,
-          articleCount: countResult.count
-        };
-      })
+    const categoriesWithCount = await dbAll(
+      `SELECT c.id, c.name, c.slug, c.description, c.icon,
+              COUNT(a.id) as articleCount
+       FROM categories c
+       LEFT JOIN articles a ON a.category_id = c.id AND a.is_published = 1
+       WHERE c.is_active = 1
+       GROUP BY c.id
+       ORDER BY c.sort_order, c.name`
     );
     
     res.json({ categories: categoriesWithCount });

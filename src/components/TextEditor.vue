@@ -1,19 +1,19 @@
-<template>
+﻿<template>
   <div class="text-editor-container">
     <!-- Header -->
     <div class="flex items-center justify-between mb-3">
-      <label v-if="label" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ label }}</label>
+      <label v-if="label" class="block text-sm font-medium text-gray-300">{{ label }}</label>
       <div v-else />
       <div class="flex items-center gap-3">
         <!-- Format Toggle -->
-        <div class="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5">
-          <button v-for="f in formats" :key="f.value" @click="setFormat(f.value)" :class="['px-3 py-1 rounded-md text-xs font-medium transition-all', format === f.value ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500']">
+        <div class="flex items-center gap-1 bg-white/5 rounded-lg p-0.5">
+          <button v-for="f in formats" :key="f.value" @click="setFormat(f.value)" :class="['px-3 py-1 rounded-md text-xs font-medium transition-all', format === f.value ? 'bg-black/35 shadow-sm text-white' : 'text-gray-500']">
             {{ f.label }}
           </button>
         </div>
         <!-- View Toggle (markdown only) -->
-        <div v-if="format === 'markdown'" class="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5">
-          <button v-for="m in viewModes" :key="m.value" @click="viewMode = m.value" :class="['px-2 py-1 rounded-md text-xs transition-all', viewMode === m.value ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500']" :title="m.label">
+        <div v-if="format === 'markdown'" class="flex items-center gap-1 bg-white/5 rounded-lg p-0.5">
+          <button v-for="m in viewModes" :key="m.value" @click="viewMode = m.value" :class="['px-2 py-1 rounded-md text-xs transition-all', viewMode === m.value ? 'bg-black/35 shadow-sm text-white' : 'text-gray-500']" :title="m.label">
             <Icon :name="m.icon" size="xs" />
           </button>
         </div>
@@ -27,34 +27,34 @@
     <!-- Non-WYSIWYG Mode -->
     <template v-else>
     <!-- Markdown Toolbar -->
-    <div v-if="format === 'markdown'" class="flex flex-wrap gap-1 p-2 bg-gray-50 dark:bg-gray-800/80 rounded-xl border border-gray-200 dark:border-gray-700 mb-2">
-      <button v-for="tool in markdownTools" :key="tool.name" @click="applyTool(tool)" class="px-2 py-1.5 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg text-xs transition-colors" :title="tool.title">
+    <div v-if="format === 'markdown'" class="flex flex-wrap gap-1 p-2 bg-white/3 rounded-xl border border-white/8 mb-2">
+      <button v-for="tool in markdownTools" :key="tool.name" @click="applyTool(tool)" class="px-2 py-1.5 bg-black/35 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg text-xs transition-colors" :title="tool.title">
         <Icon v-if="tool.icon" :name="tool.icon" size="sm" />
         <span v-else>{{ tool.label }}</span>
       </button>
       <div class="flex-grow" />
-      <button @click="triggerUpload" class="px-2 py-1.5 bg-white dark:bg-gray-700 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg text-xs transition-colors" title="上传图片">
+      <button @click="triggerUpload" class="px-2 py-1.5 bg-black/35 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg text-xs transition-colors" title="上传图片">
         <Icon name="solar:gallery-add-bold" size="sm" />
       </button>
-      <button @click="showImageManager = true" class="px-2 py-1.5 bg-white dark:bg-gray-700 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg text-xs transition-colors" title="图片管理器">
+      <button @click="showImageManager = true" class="px-2 py-1.5 bg-black/35 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg text-xs transition-colors" title="图片管理器">
         <Icon name="solar:gallery-bold" size="sm" />
       </button>
     </div>
 
     <!-- Action Bar -->
     <div class="flex items-center gap-2 mb-2">
-      <button @click="importFile" class="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 bg-gray-50 dark:bg-gray-800 rounded-lg transition-colors" title="导入文件">
+      <button @click="importFile" class="flex items-center gap-1 px-2 py-1 text-xs text-gray-400 hover:text-cyber-cyan bg-gray-50 dark:bg-gray-800 rounded-lg transition-colors" title="导入文件">
         <Icon name="solar:upload-minimalistic-bold" size="xs" />
         导入
       </button>
-      <button @click="exportFile" class="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 bg-gray-50 dark:bg-gray-800 rounded-lg transition-colors" title="导出文件">
+      <button @click="exportFile" class="flex items-center gap-1 px-2 py-1 text-xs text-gray-400 hover:text-cyber-cyan bg-gray-50 dark:bg-gray-800 rounded-lg transition-colors" title="导出文件">
         <Icon name="solar:download-minimalistic-bold" size="xs" />
         导出
       </button>
     </div>
 
     <!-- Editor Area -->
-    <div class="relative rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="relative rounded-xl border border-white/8 overflow-hidden">
       <!-- Edit Only -->
       <textarea
         v-if="viewMode === 'edit' || format === 'txt'"
@@ -62,7 +62,7 @@
         v-model="content"
         :rows="rows"
         :placeholder="format === 'markdown' ? mdPlaceholder : txtPlaceholder"
-        class="w-full px-4 py-3 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-sm leading-relaxed resize-y outline-none"
+        class="w-full px-4 py-3 bg-black/40 text-gray-800 dark:text-gray-100 text-sm leading-relaxed resize-y outline-none"
         :class="format === 'markdown' ? 'font-mono' : 'font-sans'"
         @drop.prevent="handleDrop"
         @dragover.prevent
@@ -76,18 +76,18 @@
           v-model="content"
           :rows="rows"
           :placeholder="mdPlaceholder"
-          class="w-full px-4 py-3 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-sm leading-relaxed resize-y outline-none border-r border-gray-200 dark:border-gray-700 font-mono"
+          class="w-full px-4 py-3 bg-black/40 text-gray-800 dark:text-gray-100 text-sm leading-relaxed resize-y outline-none border-r border-white/8 font-mono"
           @drop.prevent="handleDrop"
           @dragover.prevent
           @paste="handlePaste"
         />
-        <div class="px-4 py-3 bg-gray-50 dark:bg-gray-900 overflow-auto" :style="{ minHeight: `${rows * 1.5}rem` }">
+        <div class="px-4 py-3 bg-transparent overflow-auto" :style="{ minHeight: `${rows * 1.5}rem` }">
           <div class="markdown-preview prose prose-sm dark:prose-invert max-w-none" v-html="renderedContent" />
         </div>
       </div>
 
       <!-- Preview Only -->
-      <div v-else class="px-6 py-4 bg-gray-50 dark:bg-gray-900 overflow-auto" :style="{ minHeight: `${rows * 1.5}rem` }">
+      <div v-else class="px-6 py-4 bg-transparent overflow-auto" :style="{ minHeight: `${rows * 1.5}rem` }">
         <div class="markdown-preview prose prose-sm dark:prose-invert max-w-none" v-html="renderedContent" />
       </div>
     </div>
@@ -104,11 +104,11 @@
 
     <!-- Image Manager Modal -->
     <div v-if="showImageManager" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click.self="showImageManager = false">
-      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[80vh] flex flex-col mx-4">
+      <div class="bg-black/40 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[80vh] flex flex-col mx-4">
         <!-- Header -->
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">图片管理器</h3>
-          <button @click="showImageManager = false" class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-white/8">
+          <h3 class="text-lg font-semibold text-white">图片管理器</h3>
+          <button @click="showImageManager = false" class="p-1 hover:bg-white/5 rounded-lg transition-colors">
             <Icon name="solar:close-circle-bold" size="md" />
           </button>
         </div>
@@ -152,6 +152,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { marked } from 'marked'
 import Icon from '@/components/ui/Icon.vue'
 import WysiwygEditor from '@/components/WysiwygEditor.vue'
 import { uploadAPI } from '@/utils/apiClient'
@@ -211,7 +212,6 @@ const markdownTools = [
 const renderedContent = computed(() => {
   if (format.value !== 'markdown' || !content.value) return '<p class="text-gray-400">暂无内容</p>'
   try {
-    const { marked } = require('marked')
     return marked(content.value)
   } catch {
     return content.value.replace(/\n/g, '<br>')

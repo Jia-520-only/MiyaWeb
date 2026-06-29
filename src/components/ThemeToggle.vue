@@ -1,14 +1,18 @@
-<template>
+﻿<template>
   <button
     @click="toggleTheme"
-    class="p-2 rounded-lg bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm hover:bg-white/70 dark:hover:bg-gray-700/70 transition-all duration-300 shadow-md"
-    :title="isDark ? '切换到浅色模式' : '切换到深色模式'"
+    class="p-2 rounded-lg border backdrop-blur-sm transition-all duration-300"
+    :class="isDark
+      ? 'bg-black/30 border-white/8 hover:border-cyber-cyan/25'
+      : 'bg-white/60 border-black/8 hover:border-[var(--color-primary)]/30'"
+    :title="isDark ? '切换至亮色模式' : '切换至暗色模式'"
     aria-label="切换主题"
   >
-    <!-- Sun Icon (浅色模式时显示) -->
+    <!-- Sun icon (light mode) -->
     <svg
       v-if="!isDark"
-      class="w-6 h-6 text-gray-700"
+      class="w-5 h-5"
+      :style="{ color: 'var(--color-primary-deep)' }"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -20,11 +24,11 @@
         d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
       />
     </svg>
-
-    <!-- Moon Icon (深色模式时显示) -->
+    <!-- Moon icon (dark mode) -->
     <svg
       v-else
-      class="w-6 h-6 text-yellow-300"
+      class="w-5 h-5"
+      :style="{ color: 'var(--color-primary-glow)' }"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"

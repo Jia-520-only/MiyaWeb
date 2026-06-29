@@ -1,10 +1,10 @@
-<template>
+﻿<template>
   <div class="space-y-6">
     <div class="flex items-center justify-between">
-      <h2 class="section-title !mb-0">伴侣社区</h2>
+      <h2 class="section-title !mb-0">OC 社区</h2>
       <button @click="showCreateModal = true" class="btn-primary">
         <Icon name="solar:add-circle-bold" size="sm" class="mr-1" />
-        新建伴侣组
+         新建 OC 组
       </button>
     </div>
 
@@ -19,7 +19,7 @@
             <Icon name="solar:star-shine-bold-duotone" size="lg" />
           </div>
           <div>
-            <h3 class="font-semibold text-gray-900 dark:text-white text-sm">{{ col.name }}</h3>
+            <h3 class="font-semibold text-white text-sm">{{ col.name }}</h3>
             <p class="text-xs text-gray-400">{{ col.slug }} · {{ col.item_count || 0 }} 项</p>
           </div>
         </div>
@@ -34,22 +34,22 @@
     <Teleport to="body">
       <div v-if="showCreateModal || showEditModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[100] p-4" @click.self="closeModal">
         <div class="glass-panel p-8 max-w-lg w-full animate-slide-up">
-          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">{{ showEditModal ? '编辑伴侣组' : '新建伴侣组' }}</h2>
+          <h2 class="text-xl font-bold text-white mb-6">{{ showEditModal ? '编辑 OC 组' : '新建 OC 组' }}</h2>
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">名称</label>
-              <input v-model="form.name" class="input-field" placeholder="伴侣组名称" />
+              <label class="block text-sm font-medium text-gray-300 mb-1">名称</label>
+              <input v-model="form.name" class="input-field" placeholder="OC 组名称" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Slug</label>
+              <label class="block text-sm font-medium text-gray-300 mb-1">Slug</label>
               <input v-model="form.slug" class="input-field" placeholder="url-slug" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">描述</label>
+              <label class="block text-sm font-medium text-gray-300 mb-1">描述</label>
               <textarea v-model="form.description" class="input-field !h-20 resize-none" placeholder="简短描述" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">封面图片 URL</label>
+              <label class="block text-sm font-medium text-gray-300 mb-1">封面图片 URL</label>
               <input v-model="form.cover_image" class="input-field" placeholder="https://..." />
             </div>
           </div>

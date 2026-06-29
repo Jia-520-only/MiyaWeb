@@ -101,38 +101,39 @@ const generateThumbnail = async (filePath, filename) => {
 };
 
 // 压缩图片（上传时自动调用）
+// 返回 { compressed: boolean, newPath?: string } 
 const compressImage = async (filePath, maxWidth = 1920, quality = 80) => {
   try {
     const extension = path.extname(filePath).toLowerCase().substring(1);
     const imageExtensions = ['jpg', 'jpeg', 'png', 'webp'];
 
-    if (!imageExtensions.includes(extension)) return false;
+    if (!imageExtensions.includes(extension)) return { compressed: false };
 
     const metadata = await sharp(filePath).metadata();
-    // 只压缩超过 maxWidth 的大图
-    if (metadata.width && metadata.width <= maxWidth) return false;
-
-    const outputPath = filePath; // 原地压缩
-    const options = { quality };
+    if (metadata.width && metadata.width <= maxWidth && extension !== 'png') {
+      return { compressed: false };
+    }
 
     if (extension === 'png') {
-      // 大 PNG 转为 WebP 节省空间
+      const newPath = filePath.replace(/\.png$/i, '.webp');
       await sharp(filePath)
         .resize(maxWidth, null, { withoutEnlargement: true })
-        .webp(options)
-        .toFile(outputPath + '.webp');
-      fs.renameSync(outputPath + '.webp', outputPath.replace(`.${extension}`, '.webp'));
-      return true; // 返回 true 表示文件名已改变
+        .webp({ quality })
+        .toFile(newPath);
+      try { fs.unlinkSync(filePath); } catch (e) { /* ignore */ }
+      return { compressed: true, newPath };
     } else {
+      const tmpPath = filePath + '.tmp';
       await sharp(filePath)
         .resize(maxWidth, null, { withoutEnlargement: true })
-        .jpeg(options)
-        .toFile(outputPath);
-      return false;
+        .jpeg({ quality })
+        .toFile(tmpPath);
+      fs.renameSync(tmpPath, filePath);
+      return { compressed: true, newPath: filePath };
     }
   } catch (error) {
     console.warn('压缩图片失败:', error.message);
-    return false;
+    return { compressed: false };
   }
 };
 

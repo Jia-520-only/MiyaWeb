@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const { dbAll, dbGet, dbRun } = require('../database/db');
-const { authenticate, hasPermission } = require('../utils/jwt');
+const { authenticate } = require('../utils/jwt');
 const { validateUserRegistration, sanitizeObject } = require('../utils/validation');
 
 const router = express.Router();

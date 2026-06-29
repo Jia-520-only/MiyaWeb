@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="page-container">
     <div class="container mx-auto px-6 py-12 max-w-6xl">
       <!-- Back -->
@@ -9,15 +9,20 @@
 
       <!-- Collection Header -->
       <div v-if="collection" class="mb-12 animate-fade-in">
+        <!-- Cover Image -->
+        <div v-if="collection.cover_image" class="w-full max-h-64 rounded-2xl overflow-hidden mb-6">
+          <img :src="collection.cover_image" :alt="collection.name" class="w-full h-64 object-cover" loading="lazy" />
+        </div>
+
         <div class="flex items-center gap-3 mb-3">
           <span class="badge bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400">
-            {{ collection.type === 'book_group' ? '图书组' : '伴侣组' }}
+            {{ collection.type === 'book_group' ? '图书组' : 'OC 组' }}
           </span>
         </div>
-        <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">
+        <h1 class="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">
           {{ collection.name }}
         </h1>
-        <p v-if="collection.description" class="text-gray-500 dark:text-gray-400 text-lg">{{ collection.description }}</p>
+        <p v-if="collection.description" class="text-gray-400 text-lg">{{ collection.description }}</p>
       </div>
 
       <!-- Items Grid -->
@@ -29,7 +34,11 @@
         <div
           v-for="(item, index) in items"
           :key="item.id"
+          role="link"
+          :tabindex="0"
           @click="$router.push(`/library/${$route.params.collectionId}/${item.id}`)"
+          @keydown.enter="$router.push(`/library/${$route.params.collectionId}/${item.id}`)"
+          @keydown.space.prevent="$router.push(`/library/${$route.params.collectionId}/${item.id}`)"
           class="group cursor-pointer animate-slide-up"
           :style="{ animationDelay: `${index * 60}ms` }"
         >
@@ -43,7 +52,7 @@
               <p class="text-white text-xs line-clamp-2">{{ item.description || item.title }}</p>
             </div>
           </div>
-          <p class="mt-2.5 text-sm font-medium text-gray-800 dark:text-gray-200 text-center line-clamp-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+          <p class="mt-2.5 text-sm font-medium text-gray-200 text-center line-clamp-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
             {{ item.title }}
           </p>
         </div>
@@ -52,8 +61,8 @@
       <!-- Empty -->
       <div v-else class="text-center py-24 animate-fade-in">
         <Icon name="solar:book-2-bold-duotone" size="xl" color="#a5b4c8" class="mb-4" />
-        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">暂无内容</h3>
-        <p class="text-gray-500 dark:text-gray-400">这个图书组还没有添加任何内容</p>
+        <h3 class="text-xl font-semibold text-white mb-2">暂无内容</h3>
+        <p class="text-gray-400">这个图书组还没有添加任何内容</p>
       </div>
     </div>
   </div>

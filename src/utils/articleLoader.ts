@@ -1,5 +1,5 @@
 // 文章加载工具
-import { ArticleStorage, type ArticleData } from './articleStorage';
+import { ArticleStorage } from './articleStorage';
 
 export interface Article {
   id: string;

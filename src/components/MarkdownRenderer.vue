@@ -3,15 +3,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { renderMarkdown } from '@/utils/markdown';
+import { computed } from 'vue'
+import DOMPurify from 'dompurify'
+import { renderMarkdown } from '@/utils/markdown'
 
 interface Props {
-  content: string;
+  content: string
 }
 
-const props = defineProps<Props>();
-const renderedContent = computed(() => renderMarkdown(props.content));
+const props = defineProps<Props>()
+const renderedContent = computed(() => DOMPurify.sanitize(renderMarkdown(props.content)))
 </script>
 
 <style scoped>

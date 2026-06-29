@@ -499,9 +499,9 @@ const handleImageUpload = (event: Event) => {
 const saveCustomBackground = () => {
   const dataToSave = {
     page: route.path,
-    imageUrl: backgroundType === 'text-only' ? null : localBackground.value.imageUrl,
-    blur: backgroundType === 'text-only' ? 0 : localBackground.value.blur,
-    opacity: backgroundType === 'text-only' ? 0 : localBackground.value.opacity,
+    imageUrl: backgroundType.value === 'text-only' ? null : localBackground.value.imageUrl,
+    blur: backgroundType.value === 'text-only' ? 0 : localBackground.value.blur,
+    opacity: backgroundType.value === 'text-only' ? 0 : localBackground.value.opacity,
     contentOverlayColor: localBackground.value.contentOverlayColor,
     contentOverlayOpacity: localBackground.value.contentOverlayOpacity,
     updatedAt: new Date().toISOString()

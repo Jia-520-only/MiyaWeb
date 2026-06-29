@@ -7,40 +7,31 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000
 
 // 请求拦截器
 const requestInterceptor = async (url: string, options: RequestInit) => {
-  // 添加认证令牌
   const token = localStorage.getItem('auth_token');
+  const headers = new Headers(options.headers);
   if (token) {
-    options.headers = {
-      ...options.headers,
-      'Authorization': `Bearer ${token}`
-    };
+    headers.set('Authorization', `Bearer ${token}`);
   }
   
-  // 添加内容类型
   if (options.body && !(options.body instanceof FormData)) {
-    options.headers = {
-      ...options.headers,
-      'Content-Type': 'application/json'
-    };
+    headers.set('Content-Type', 'application/json');
   }
   
-  return { url, options };
+  return { url, options: { ...options, headers } };
 };
 
 // 响应拦截器
 const responseInterceptor = async (response: Response) => {
   if (!response.ok) {
-    const error = await response.json().catch(() => ({
-      error: '服务器错误',
-      message: response.statusText
-    }));
-    
-    throw {
-      status: response.status,
-      ...error
-    };
+    const text = await response.text().catch(() => '');
+    let error: { error?: string; message?: string };
+    try {
+      error = JSON.parse(text);
+    } catch {
+      error = { error: `服务器错误 (${response.status})`, message: text.substring(0, 200) };
+    }
+    throw { status: response.status, ...error };
   }
-  
   return response.json();
 };
 
@@ -94,6 +85,16 @@ export const authAPI = {
     confirmPassword: string;
   }) => request('/auth/change-password', {
     method: 'POST',
+    body: JSON.stringify(data)
+  }),
+
+  // 修改账户（用户名+密码）
+  updateAccount: (data: {
+    currentPassword: string;
+    newUsername?: string;
+    newPassword?: string;
+  }) => request<{ message: string; user: { id: number; username: string; role: string } }>('/auth/account', {
+    method: 'PUT',
     body: JSON.stringify(data)
   }),
   
@@ -371,6 +372,8 @@ export const collectionAPI = {
 
 // CMS 内容项 API（图书 / 伴侣卡片 / 卷 / 章节 / 文章）
 export const itemAPI = {
+  getImported: () => request<{ items: any[] }>('/items/imported/list'),
+
   getById: (id: number) => request<{ item: any; volumes: any[]; orphanChapters: any[] }>(`/items/${id}`),
   getTOC: (id: number) => request<any>(`/items/${id}/toc`),
   // 项
@@ -378,6 +381,8 @@ export const itemAPI = {
     request<{ item: any; message: string }>('/items', { method: 'POST', body: JSON.stringify(data) }),
   update: (id: number, data: any) => request<{ item: any; message: string }>(`/items/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id: number) => request(`/items/${id}`, { method: 'DELETE' }),
+  publish: (id: number, status: 'draft' | 'published') =>
+    request(`/items/${id}/publish`, { method: 'PUT', body: JSON.stringify({ status }) }),
   // 卷
   createVolume: (itemId: number, data: { title: string; description?: string; sort_order?: number }) =>
     request<{ volume: any; message: string }>(`/items/${itemId}/volumes`, { method: 'POST', body: JSON.stringify(data) }),
@@ -441,6 +446,7 @@ export const resourceAPI = {
     const query = new URLSearchParams(params as any).toString();
     return request<{ resources: any[] }>(`/resources${query ? `?${query}` : ''}`);
   },
+  getById: (id: number) => request<{ resource: any }>(`/resources/${id}`),
   getCategories: () => request<{ categories: string[] }>('/resources/categories'),
   create: (data: { title: string; url: string; description?: string; icon?: string; category?: string; cover_image?: string; sort_order?: number }) =>
     request<{ resource: any; message: string }>('/resources', { method: 'POST', body: JSON.stringify(data) }),

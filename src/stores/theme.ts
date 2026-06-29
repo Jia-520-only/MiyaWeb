@@ -1,17 +1,15 @@
 import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 
 export const useThemeStore = defineStore('theme', () => {
-  const isDark = ref(false)
+  const isDark = ref(true)
 
-  // 初始化主题（从 localStorage 或系统偏好读取）
   const initTheme = () => {
     const savedTheme = localStorage.getItem('theme')
     if (savedTheme) {
       isDark.value = savedTheme === 'dark'
     } else {
-      // 检查系统偏好
-      isDark.value = window.matchMedia('(prefers-color-scheme: dark)').matches
+      isDark.value = true
     }
     applyTheme()
   }

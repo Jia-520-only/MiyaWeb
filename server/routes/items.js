@@ -9,6 +9,23 @@ const router = express.Router();
 // 内容项管理（图书 / 伴侣卡片）
 // ========================================
 
+// 获取所有自动导入的条目（source_file 不为空）
+router.get('/imported/list', authenticate(), async (req, res) => {
+  try {
+    const items = await dbAll(
+      `SELECT i.*, c.name as collection_name, c.slug as collection_slug
+       FROM items i
+       LEFT JOIN collections c ON i.collection_id = c.id
+       WHERE i.source_file IS NOT NULL
+       ORDER BY i.updated_at DESC`
+    );
+    res.json({ items });
+  } catch (error) {
+    console.error('获取导入条目失败:', error);
+    res.status(500).json({ error: '获取导入条目失败' });
+  }
+});
+
 // 获取单个项详情（公开）
 router.get('/:id', async (req, res) => {
   try {
@@ -50,58 +67,51 @@ router.get('/:id', async (req, res) => {
 // 获取项的目录结构（公开）
 router.get('/:id/toc', async (req, res) => {
   try {
-    const item = await dbGet('SELECT id, title, type FROM items WHERE id = ?', [req.params.id]);
+    const itemId = req.params.id;
+    const item = await dbGet('SELECT id, title, type FROM items WHERE id = ?', [itemId]);
     if (!item) {
       return res.status(404).json({ error: '内容项不存在' });
     }
 
-    const volumes = await dbAll(
-      'SELECT * FROM volumes WHERE item_id = ? ORDER BY sort_order ASC',
-      [item.id]
-    );
+    const [volumes, allChapters, allArticles] = await Promise.all([
+      dbAll('SELECT * FROM volumes WHERE item_id = ? ORDER BY sort_order ASC', [itemId]),
+      dbAll('SELECT * FROM chapters WHERE item_id = ? ORDER BY sort_order ASC', [itemId]),
+      dbAll('SELECT id, title, content_type, summary, sort_order, chapter_id, item_id FROM articles_v2 WHERE item_id = ? ORDER BY sort_order ASC', [itemId])
+    ]);
 
-    // 为每个卷获取章节和文章
-    const volumesWithChapters = await Promise.all(volumes.map(async (vol) => {
-      const chapters = await dbAll(
-        'SELECT * FROM chapters WHERE volume_id = ? ORDER BY sort_order ASC',
-        [vol.id]
-      );
+    const articlesByChapter = new Map();
+    const directArticles = [];
+    for (const article of allArticles) {
+      if (article.chapter_id) {
+        const list = articlesByChapter.get(article.chapter_id) || [];
+        list.push(article);
+        articlesByChapter.set(article.chapter_id, list);
+      } else {
+        directArticles.push(article);
+      }
+    }
 
-      const chaptersWithArticles = await Promise.all(chapters.map(async (ch) => {
-        const articles = await dbAll(
-          'SELECT id, title, content_type, summary, sort_order FROM articles_v2 WHERE chapter_id = ? ORDER BY sort_order ASC',
-          [ch.id]
-        );
-        return { ...ch, articles };
-      }));
+    const chaptersByVolume = new Map();
+    const orphanChapters = [];
+    for (const ch of allChapters) {
+      if (ch.volume_id) {
+        const list = chaptersByVolume.get(ch.volume_id) || [];
+        list.push({ ...ch, articles: articlesByChapter.get(ch.id) || [] });
+        chaptersByVolume.set(ch.volume_id, list);
+      } else {
+        orphanChapters.push({ ...ch, articles: articlesByChapter.get(ch.id) || [] });
+      }
+    }
 
-      return { ...vol, chapters: chaptersWithArticles };
+    const volumesWithChapters = volumes.map(vol => ({
+      ...vol,
+      chapters: chaptersByVolume.get(vol.id) || []
     }));
-
-    // 获取没有卷的章节
-    const orphanChapters = await dbAll(
-      'SELECT * FROM chapters WHERE item_id = ? AND volume_id IS NULL ORDER BY sort_order ASC',
-      [item.id]
-    );
-
-    const orphanWithArticles = await Promise.all(orphanChapters.map(async (ch) => {
-      const articles = await dbAll(
-        'SELECT id, title, content_type, summary, sort_order FROM articles_v2 WHERE chapter_id = ? ORDER BY sort_order ASC',
-        [ch.id]
-      );
-      return { ...ch, articles };
-    }));
-
-    // 获取不属于任何章节的文章（直接挂载在项下）
-    const directArticles = await dbAll(
-      'SELECT id, title, content_type, summary, sort_order FROM articles_v2 WHERE item_id = ? AND chapter_id IS NULL ORDER BY sort_order ASC',
-      [item.id]
-    );
 
     res.json({
       item,
       volumes: volumesWithChapters,
-      orphanChapters: orphanWithArticles,
+      orphanChapters,
       directArticles
     });
   } catch (error) {
@@ -123,8 +133,8 @@ router.post('/', authenticate(), async (req, res) => {
       return res.status(400).json({ error: 'collection_id, title, slug, type 为必填字段' });
     }
 
-    if (!['book', 'companion'].includes(type)) {
-      return res.status(400).json({ error: 'type 必须为 book 或 companion' });
+    if (!['book', 'companion', 'post'].includes(type)) {
+      return res.status(400).json({ error: 'type 必须为 book, companion 或 post' });
     }
 
     // 检查 slug 是否重复
@@ -767,7 +777,7 @@ router.get('/:id/export/pdf', async (req, res) => {
     }
 
     const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
-      body { font-family: "Georgia", "Noto Serif SC", serif; line-height: 1.8; margin: 2em; color: #333; max-width: 700px; }
+      body { font-family: "Georgia", "Source Han Serif SC", "Songti SC", "Noto Serif SC", "SimSun", serif; line-height: 1.8; margin: 2em; color: #333; max-width: 700px; }
       h1 { font-size: 2em; }
       h2 { font-size: 1.5em; }
       h3 { font-size: 1.2em; }
@@ -835,7 +845,7 @@ router.post('/:id/import/epub', authenticate(), upload.single('file'), async (re
     // Sort by filename for reading order
     htmlEntries.sort((a, b) => a.entryName.localeCompare(b.entryName));
 
-    const { getFileInfo, cleanupTempFiles } = require('../utils/fileUpload');
+    const { cleanupTempFiles: _cleanupTempFiles } = require('../utils/fileUpload');
     let createdChapters = 0;
     let createdArticles = 0;
 
@@ -895,5 +905,34 @@ router.post('/:id/import/epub', authenticate(), upload.single('file'), async (re
     res.status(500).json({ error: '导入EPUB失败', detail: error.message });
   }
 });
+
+// ─── 发布 / 取消发布 ───
+router.put('/:id/publish', authenticate(), async (req, res) => {
+  if (!hasPermission(req.user, 'editor')) return res.status(403).json({ error: '权限不足' })
+  try {
+    const { status } = req.body
+    if (!['draft', 'published'].includes(status)) {
+      return res.status(400).json({ error: 'status 必须为 draft 或 published' })
+    }
+    await dbRun('UPDATE items SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [status, req.params.id])
+    res.json({ success: true, status })
+  } catch (error) {
+    res.status(500).json({ error: '更新发布状态失败', detail: error.message })
+  }
+})
+
+router.put('/articles/:articleId/publish', authenticate(), async (req, res) => {
+  if (!hasPermission(req.user, 'editor')) return res.status(403).json({ error: '权限不足' })
+  try {
+    const { status } = req.body
+    if (!['draft', 'published'].includes(status)) {
+      return res.status(400).json({ error: 'status 必须为 draft 或 published' })
+    }
+    await dbRun('UPDATE articles_v2 SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [status, req.params.articleId])
+    res.json({ success: true, status })
+  } catch (error) {
+    res.status(500).json({ error: '更新发布状态失败', detail: error.message })
+  }
+})
 
 module.exports = router;

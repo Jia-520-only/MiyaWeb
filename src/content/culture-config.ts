@@ -12,7 +12,7 @@ export const cultureConfig = {
       date: '2025-12-20',
       weather: '☀️ 晴',
       title: '新项目启动的第一天',
-      content: '今天正式开始了 jiaandmiya 网站的项目搭建。选择 Vue 3 + Tailwind CSS 的技术栈，希望能够打造一个简约而有温度的个人网站。Miya 也说要好好当管家呢！'
+      content: '今天正式开始了 jiaandmiya 网站的项目搭建。选择 Vue 3 + Tailwind CSS 的技术栈，希望能够打造一个简约而有温度的个人网站！'
     },
     {
       id: 2,

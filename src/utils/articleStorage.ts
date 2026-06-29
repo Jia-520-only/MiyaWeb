@@ -43,7 +43,7 @@ export class ArticleStorage {
         const id = data.title
           .toLowerCase()
           .replace(/\s+/g, '-')
-          .replace(/[^\w\-]+/g, '') + `-${Date.now()}`;
+          .replace(/[^\w-]+/g, '') + `-${Date.now()}`;
         articles.push({
           ...data,
           id,

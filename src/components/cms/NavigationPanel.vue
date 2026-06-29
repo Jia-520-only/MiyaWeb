@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="space-y-6">
     <div class="flex items-center justify-between">
       <h2 class="section-title !mb-0">侧边栏导航</h2>
@@ -13,11 +13,11 @@
     </div>
 
     <div v-else class="glass-card !p-6 space-y-2">
-      <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">拖拽排序功能开发中，目前可通过编辑调整排序值。</p>
+      <p class="text-sm text-gray-400 mb-4">拖拽排序功能开发中，目前可通过编辑调整排序值。</p>
       <div v-for="item in flatNav" :key="item.id" class="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors group">
         <span class="text-xs text-gray-400 w-6 text-right">{{ item.sort_order }}</span>
         <Icon v-if="item.icon" :name="item.icon" size="sm" />
-        <span class="flex-1 text-sm font-medium text-gray-800 dark:text-gray-200">{{ item.title }}</span>
+        <span class="flex-1 text-sm font-medium text-gray-200">{{ item.title }}</span>
         <span class="text-xs text-gray-400 truncate max-w-[200px]">{{ item.link || '-' }}</span>
         <span :class="['badge', item.is_visible ? 'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500']">
           {{ item.is_visible ? '显示' : '隐藏' }}
@@ -34,32 +34,32 @@
     <Teleport to="body">
       <div v-if="showModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[100] p-4" @click.self="showModal = false">
         <div class="glass-panel p-8 max-w-lg w-full animate-slide-up">
-          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">编辑导航项</h2>
+          <h2 class="text-xl font-bold text-white mb-6">编辑导航项</h2>
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">标题</label>
+              <label class="block text-sm font-medium text-gray-300 mb-1">标题</label>
               <input v-model="form.title" class="input-field" placeholder="导航标题" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Icon (Iconify 名称)</label>
+              <label class="block text-sm font-medium text-gray-300 mb-1">Icon (Iconify 名称)</label>
               <input v-model="form.icon" class="input-field" placeholder="solar:home-2-bold-duotone" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">链接</label>
+              <label class="block text-sm font-medium text-gray-300 mb-1">链接</label>
               <input v-model="form.link" class="input-field" placeholder="/library 或 https://..." />
             </div>
             <div class="flex items-center gap-4">
               <label class="flex items-center gap-2 text-sm">
                 <input type="checkbox" v-model="form.is_visible" class="rounded border-gray-300 text-primary-500" />
-                <span class="text-gray-700 dark:text-gray-300">显示</span>
+                <span class="text-gray-300">显示</span>
               </label>
               <label class="flex items-center gap-2 text-sm">
                 <input type="checkbox" v-model="form.open_in_new_tab" class="rounded border-gray-300 text-primary-500" />
-                <span class="text-gray-700 dark:text-gray-300">新标签打开</span>
+                <span class="text-gray-300">新标签打开</span>
               </label>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">排序</label>
+              <label class="block text-sm font-medium text-gray-300 mb-1">排序</label>
               <input v-model.number="form.sort_order" type="number" class="input-field" />
             </div>
           </div>

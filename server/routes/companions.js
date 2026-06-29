@@ -1,7 +1,6 @@
 const express = require('express');
 const { dbAll, dbGet, dbRun } = require('../database/db');
 const { authenticate } = require('../utils/jwt');
-const { sanitizeObject } = require('../utils/validation');
 
 const router = express.Router();
 

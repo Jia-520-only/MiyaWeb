@@ -174,7 +174,7 @@ const sanitizeInput = (input) => {
 const sanitizeObject = (obj) => {
   const sanitized = {};
   for (const [key, value] of Object.entries(obj)) {
-    sanitized[key] = sanitizeInput(value);
+    sanitized[key] = typeof value === 'string' ? sanitizeInput(value) : value;
   }
   return sanitized;
 };

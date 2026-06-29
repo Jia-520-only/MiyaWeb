@@ -1,82 +1,75 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-.DS_Store
-dist
-dist-ssr
-coverage
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-*.tsbuildinfo
-
-.eslintcache
-
-# Cypress
-/cypress/videos/
-/cypress/screenshots/
-
-# Vitest
-__screenshots__/
-
-# Vite
-*.timestamp-*-*.mjs
+server/logs/
 
 # Database (SQLite)
 *.db
 *.db-journal
 *.db-wal
 *.db-shm
-database/*.db
-database/*.db-journal
-database/*.db-wal
-database/*.db-shm
 server/database/*.db
-server/database/*.db-journal
-server/database/*.db-wal
-server/database/*.db-shm
+server/database/*.db-*
 
-# Uploads (user uploaded files)
+# Uploaded files
 uploads/
+server/uploads/
+thumbnails/
 
-# Environment files
+# Environment files (contains secrets!)
 .env
 .env.local
 .env.*.local
+server/.env
 
-# Misc docs (not needed in repo)
-完整CMS系统说明.md
-ARTALK_SETUP.md
-ARTICLE_STORAGE_GUIDE.md
-AUTH_GUIDE.md
-BT_PANEL_DEPLOYMENT_GUIDE.md
-CMS_GUIDE.md
-CONTENT_GUIDE.md
-DEPLOYMENT_CHECKLIST.md
-DEPLOYMENT.md
-docker-compose.waline.yml
-FOOTER_PREVIEW.html
-GISCUS_ALTERNATIVE.md
-LEANCLOUD_SETUP.md
-MARKDOWN_GUIDE.md
-NGINX_CONFIG.md
-WALINE_CHECKLIST.md
-WALINE_SETUP.md
-waline-leancloud-quick.md
-deploy-bt.sh
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cache
+.eslintcache
+*.tsbuildinfo
+*.timestamp-*.mjs
+
+# Test coverage
+coverage/
+cypress/videos/
+cypress/screenshots/
+__screenshots__/
+
+# Auto-imported content (user data)
+content/incoming/
+content/incoming-images/
+content/published/
+content/incoming-images-archive/
+
+# Misc
+*.local
+beian-icon.png
+public/beian-icon.png
+
+# Server runtime
+server/uploads/
+server/check-*.js
+server/compare-*.js
+server/fix-*.js
+server/seed-*.js
+restart.ps1

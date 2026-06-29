@@ -12,34 +12,24 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const { type, visible } = req.query;
-    let query = 'SELECT * FROM collections WHERE 1=1';
+    let query = `SELECT c.*, COUNT(i.id) as itemCount FROM collections c
+      LEFT JOIN items i ON i.collection_id = c.id AND i.is_visible = 1 AND i.status = 'published'
+      WHERE 1=1`;
     const params = [];
 
     if (type) {
-      query += ' AND type = ?';
+      query += ' AND c.type = ?';
       params.push(type);
     }
     if (visible !== undefined) {
-      query += ' AND is_visible = ?';
+      query += ' AND c.is_visible = ?';
       params.push(visible === 'true' ? 1 : 0);
     }
 
-    query += ' ORDER BY sort_order ASC, created_at DESC';
+    query += ' GROUP BY c.id ORDER BY c.sort_order ASC, c.created_at DESC';
     const collections = await dbAll(query, params);
 
-    // 获取每个集合的项数量
-    const result = await Promise.all(collections.map(async (col) => {
-      const countResult = await dbGet(
-        'SELECT COUNT(*) as count FROM items WHERE collection_id = ? AND is_visible = 1',
-        [col.id]
-      );
-      return {
-        ...col,
-        itemCount: countResult?.count || 0
-      };
-    }));
-
-    res.json({ collections: result });
+    res.json({ collections });
   } catch (error) {
     console.error('获取集合列表失败:', error);
     res.status(500).json({ error: '获取集合列表失败' });
@@ -56,7 +46,7 @@ router.get('/:id', async (req, res) => {
 
     // 获取集合下的所有项
     const items = await dbAll(
-      'SELECT * FROM items WHERE collection_id = ? ORDER BY sort_order ASC, created_at DESC',
+      'SELECT * FROM items WHERE collection_id = ? AND status = \'published\' ORDER BY sort_order ASC, created_at DESC',
       [req.params.id]
     );
 
@@ -73,7 +63,7 @@ router.get('/:id/items', async (req, res) => {
     const { page = 1, limit = 20, visible } = req.query;
     const offset = (parseInt(page) - 1) * parseInt(limit);
 
-    let query = 'SELECT * FROM items WHERE collection_id = ?';
+    let query = 'SELECT * FROM items WHERE collection_id = ? AND status = \'published\'';
     const params = [req.params.id];
 
     if (visible !== undefined) {
@@ -117,8 +107,8 @@ router.post('/', authenticate(), async (req, res) => {
       return res.status(400).json({ error: 'name, slug, type 为必填字段' });
     }
 
-    if (!['book_group', 'companion_group'].includes(type)) {
-      return res.status(400).json({ error: 'type 必须为 book_group 或 companion_group' });
+    if (!['book_group', 'companion_group', 'blog'].includes(type)) {
+      return res.status(400).json({ error: 'type 必须为 book_group, companion_group 或 blog' });
     }
 
     // 检查 slug 是否重复

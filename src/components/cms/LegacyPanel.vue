@@ -1,7 +1,7 @@
-<template>
+﻿<template>
   <div class="space-y-6">
     <h2 class="section-title">旧版内容管理</h2>
-    <p class="text-sm text-gray-500 dark:text-gray-400">这里管理原有的页面内容项（content_items 表），后续可迁移到新版系统。</p>
+    <p class="text-sm text-gray-400">这里管理原有的页面内容项（content_items 表），后续可迁移到新版系统。</p>
 
     <div v-if="loading" class="flex justify-center py-12">
       <div class="w-8 h-8 border-2 border-primary-400 border-t-transparent rounded-full animate-spin" />
@@ -12,10 +12,10 @@
         <div class="flex items-start justify-between">
           <div class="flex-1">
             <div class="flex items-center gap-2 mb-1">
-              <span class="badge bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 text-xs">{{ item.type }}</span>
+              <span class="badge bg-white/5 text-gray-400 text-xs">{{ item.type }}</span>
               <span class="text-xs text-gray-400">{{ item.page }} / {{ item.section }}</span>
             </div>
-            <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{ item.title }}</h3>
+            <h3 class="text-sm font-semibold text-white">{{ item.title }}</h3>
             <p class="text-xs text-gray-400 mt-1">{{ item.updated_at }}</p>
           </div>
           <button @click="editItem(item)" class="btn-ghost !px-2 !py-1 text-xs">编辑</button>
@@ -27,14 +27,14 @@
     <Teleport to="body">
       <div v-if="showModal && editingContent" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[100] p-4" @click.self="showModal = false">
         <div class="glass-panel p-8 max-w-4xl w-full max-h-[85vh] overflow-y-auto animate-slide-up">
-          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">编辑内容</h2>
+          <h2 class="text-xl font-bold text-white mb-6">编辑内容</h2>
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">标题</label>
+              <label class="block text-sm font-medium text-gray-300 mb-1">标题</label>
               <input v-model="editingContent.title" class="input-field" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">内容</label>
+              <label class="block text-sm font-medium text-gray-300 mb-1">内容</label>
               <textarea v-model="editingContent.content" class="input-field !h-60 font-mono text-sm" />
             </div>
           </div>

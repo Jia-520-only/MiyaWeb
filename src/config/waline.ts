@@ -31,8 +31,8 @@ export const walineConfig = {
 
   // 自定义文案 - Miya 主题
   locale: {
-    admin: 'Miya',
-    placeholder: '欢迎留言！Miya 会认真阅读每一条评论 ✨',
+    admin: 'jiaandmiya',
+    placeholder: '欢迎留言！',
     submit: '发送评论',
     sofa: '快来发表评论吧~',
     reaction: '表情',

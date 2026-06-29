@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="min-h-screen">
     <!-- 封面区域 -->
     <div class="relative h-48 md:h-64 overflow-hidden">
@@ -10,10 +10,10 @@
           class="w-full h-full object-cover"
         />
       </div>
-      <div class="absolute inset-0 bg-gradient-to-t from-white/60 dark:from-gray-900/60 to-transparent" />
+      <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
       <div class="absolute bottom-0 left-0 right-0 px-6 md:px-12 pb-5">
         <div class="flex items-end gap-5">
-          <div class="w-20 h-20 md:w-24 md:h-24 rounded-2xl shadow-lg overflow-hidden ring-4 ring-white dark:ring-gray-800 bg-white dark:bg-gray-700">
+          <div class="w-20 h-20 md:w-24 md:h-24 rounded-2xl shadow-lg overflow-hidden ring-4 ring-white/10 bg-black/35">
             <img
               v-if="profile?.avatar"
               :src="profile.avatar"
@@ -25,7 +25,7 @@
             </div>
           </div>
           <div class="pb-1">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white tracking-tight">
+            <h1 class="text-2xl md:text-3xl font-bold text-white tracking-tight">
               {{ profile?.display_name || authStore.user?.username || '用户' }}
             </h1>
             <div class="flex items-center gap-3 mt-1">
@@ -35,7 +35,7 @@
               >
                 {{ authStore.roleName }}
               </span>
-              <span class="text-xs text-gray-500 dark:text-gray-400">
+              <span class="text-xs text-gray-400">
                 登录于 {{ formattedLoginTime }}
               </span>
             </div>
@@ -61,7 +61,7 @@
 
           <!-- 权限 -->
           <div class="glass-panel p-6 rounded-2xl">
-            <h3 class="text-base font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+            <h3 class="text-base font-semibold text-white mb-4 flex items-center gap-2">
               <Icon name="solar:shield-check-linear" size="sm" class="text-emerald-500" />
               权限
             </h3>
@@ -75,14 +75,47 @@
                 >
                   <Icon :name="perm.active ? 'solar:check-circle-linear' : 'solar:close-circle-linear'" size="xs" />
                 </div>
-                <span class="text-gray-700 dark:text-gray-300">{{ perm.label }}</span>
+                <span class="text-gray-300">{{ perm.label }}</span>
               </div>
+            </div>
+          </div>
+
+          <!-- 修改密码 -->
+          <div class="glass-panel p-6 rounded-2xl">
+            <h3 class="text-base font-semibold text-white mb-4 flex items-center gap-2">
+              <Icon name="solar:lock-password-linear" size="sm" class="text-amber-500" />
+              修改密码
+            </h3>
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs text-gray-400 mb-1">当前密码</label>
+                <input v-model="passwordForm.current" type="password" class="input-field w-full" placeholder="输入当前密码" />
+              </div>
+              <div>
+                <label class="block text-xs text-gray-400 mb-1">新密码</label>
+                <input v-model="passwordForm.newPass" type="password" class="input-field w-full" placeholder="至少8位，包含字母和数字" />
+              </div>
+              <div>
+                <label class="block text-xs text-gray-400 mb-1">确认新密码</label>
+                <input v-model="passwordForm.confirm" type="password" class="input-field w-full" placeholder="再次输入新密码" />
+              </div>
+              <div v-if="passwordMsg" :class="passwordOk ? 'text-emerald-400 text-xs' : 'text-red-400 text-xs'">
+                {{ passwordMsg }}
+              </div>
+              <button
+                @click="changePassword"
+                :disabled="passwordLoading"
+                class="w-full py-2 rounded-xl text-sm font-medium transition-colors"
+                :class="passwordLoading ? 'bg-white/10 text-gray-500' : 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30'"
+              >
+                {{ passwordLoading ? '修改中...' : '修改密码' }}
+              </button>
             </div>
           </div>
 
           <!-- 社交链接 -->
           <div v-if="socialLinks.length > 0" class="glass-panel p-6 rounded-2xl">
-            <h3 class="text-base font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+            <h3 class="text-base font-semibold text-white mb-4 flex items-center gap-2">
               <Icon name="solar:link-round-linear" size="sm" class="text-sky-500" />
               社交链接
             </h3>
@@ -106,15 +139,15 @@
         <div class="lg:col-span-2 space-y-6">
           <!-- 编辑模式 -->
           <div v-if="isEditing" class="glass-panel p-6 rounded-2xl space-y-5">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">编辑个人资料</h3>
+            <h3 class="text-lg font-semibold text-white">编辑个人资料</h3>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">显示名称</label>
+                <label class="block text-sm font-medium text-gray-400 mb-1">显示名称</label>
                 <input v-model="editForm.display_name" class="input-field w-full" placeholder="你的昵称" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">内容格式</label>
+                <label class="block text-sm font-medium text-gray-400 mb-1">内容格式</label>
                 <select v-model="editForm.bio_type" class="input-field w-full">
                   <option value="markdown">Markdown</option>
                   <option value="txt">纯文本</option>
@@ -123,17 +156,17 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">头像URL</label>
+              <label class="block text-sm font-medium text-gray-400 mb-1">头像URL</label>
               <input v-model="editForm.avatar" class="input-field w-full" placeholder="https://..." />
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">封面图URL</label>
+              <label class="block text-sm font-medium text-gray-400 mb-1">封面图URL</label>
               <input v-model="editForm.cover_image" class="input-field w-full" placeholder="https://..." />
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">个人简介</label>
+              <label class="block text-sm font-medium text-gray-400 mb-1">个人简介</label>
               <textarea
                 v-model="editForm.bio"
                 class="input-field w-full h-48 font-mono text-sm"
@@ -154,19 +187,19 @@
 
           <!-- 展示模式：个人简介 -->
           <div v-if="profile?.bio && !isEditing" class="glass-panel p-6 md:p-8 rounded-2xl">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+            <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
               <Icon name="solar:user-circle-linear" size="sm" class="text-indigo-500" />
               个人简介
             </h3>
-            <div class="prose prose-sky dark:prose-invert max-w-none text-gray-700 dark:text-gray-200 leading-relaxed">
+            <div class="prose prose-sky dark:prose-invert max-w-none text-gray-200 leading-relaxed">
               <div v-if="profile.bio_type === 'markdown'" v-html="renderedBio" />
-              <pre v-else class="whitespace-pre-wrap text-sm bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl">{{ profile.bio }}</pre>
+              <pre v-else class="whitespace-pre-wrap text-sm bg-white/3 p-4 rounded-xl">{{ profile.bio }}</pre>
             </div>
           </div>
 
           <!-- 快捷操作 -->
           <div class="glass-panel p-6 rounded-2xl">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+            <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
               <Icon name="solar:bolt-linear" size="sm" class="text-amber-500" />
               快捷操作
             </h3>
@@ -184,10 +217,10 @@
                   <Icon :name="action.icon" size="md" :class="action.iconColor" />
                 </div>
                 <div>
-                  <h4 class="font-medium text-gray-800 dark:text-white text-sm group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                  <h4 class="font-medium text-white text-sm group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
                     {{ action.title }}
                   </h4>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ action.desc }}</p>
+                  <p class="text-xs text-gray-400">{{ action.desc }}</p>
                 </div>
               </router-link>
               <button
@@ -198,10 +231,10 @@
                   <Icon name="solar:logout-2-linear" size="md" />
                 </div>
                 <div class="text-left">
-                  <h4 class="font-medium text-gray-800 dark:text-white text-sm group-hover:text-red-500 transition-colors">
+                  <h4 class="font-medium text-white text-sm group-hover:text-red-500 transition-colors">
                     退出登录
                   </h4>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">安全退出当前账号</p>
+                  <p class="text-xs text-gray-400">安全退出当前账号</p>
                 </div>
               </button>
             </div>
@@ -216,12 +249,18 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { authAPI } from '@/utils/apiClient'
 import Icon from '@/components/ui/Icon.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const isEditing = ref(false)
 const profile = ref<any>(null)
+
+const passwordForm = ref({ current: '', newPass: '', confirm: '' })
+const passwordLoading = ref(false)
+const passwordMsg = ref('')
+const passwordOk = ref(false)
 
 const editForm = ref({
   display_name: '',
@@ -234,7 +273,7 @@ const editForm = ref({
 const roleBadgeClasses = computed(() => {
   if (authStore.isSuperAdmin) return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
   if (authStore.isAdmin) return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-  return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+  return 'bg-white/5 text-gray-300'
 })
 
 const formattedLoginTime = computed(() => {
@@ -252,7 +291,7 @@ const formattedLoginTime = computed(() => {
 const permissions = computed(() => [
   { label: '编辑内容', active: authStore.canEdit },
   { label: '发表评论', active: authStore.canComment },
-  { label: '使用伴侣社区', active: authStore.canUseCompanions },
+  { label: '使用 OC 社区', active: authStore.canUseCompanions },
   { label: '管理后台', active: authStore.isAdmin }
 ])
 
@@ -277,7 +316,7 @@ const quickActions = computed(() => {
   }
   if (authStore.canUseCompanions) {
     actions.push(
-      { to: '/cms?section=companions', title: '创建伴侣', desc: '在伴侣社区创建你的角色', icon: 'solar:users-group-rounded-linear', iconBg: 'bg-sky-100 dark:bg-sky-900/30', iconColor: 'text-sky-500' }
+      { to: '/cms?section=companions', title: '创建 OC', desc: '在 OC 社区创建你的角色', icon: 'solar:users-group-rounded-linear', iconBg: 'bg-sky-100 dark:bg-sky-900/30', iconColor: 'text-sky-500' }
     )
   }
   if (authStore.canEdit) {
@@ -300,7 +339,7 @@ function renderMarkdown(text: string): string {
   html = html.replace(/^# (.+)$/gm, '<h2 class="text-2xl font-bold mt-6 mb-3">$1</h2>')
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
   html = html.replace(/\*(.+?)\*/g, '<em>$1</em>')
-  html = html.replace(/`(.+?)`/g, '<code class="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono">$1</code>')
+  html = html.replace(/`(.+?)`/g, '<code class="bg-white/5 px-1.5 py-0.5 rounded text-sm font-mono">$1</code>')
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-sky-500 hover:text-sky-600 underline" target="_blank" rel="noopener">$1</a>')
   html = html.replace(/^[-*] (.+)$/gm, '<li class="ml-4 list-disc">$1</li>')
   html = html.replace(/^\d+\. (.+)$/gm, '<li class="ml-4 list-decimal">$1</li>')
@@ -359,6 +398,38 @@ async function saveProfile() {
     }
   } catch {
     // 静默处理
+  }
+}
+
+async function changePassword() {
+  passwordMsg.value = ''
+  passwordOk.value = false
+
+  const { current, newPass, confirm } = passwordForm.value
+  if (!current || !newPass || !confirm) {
+    passwordMsg.value = '请填写所有字段'
+    return
+  }
+  if (newPass.length < 8) {
+    passwordMsg.value = '新密码至少 8 位'
+    return
+  }
+  if (newPass !== confirm) {
+    passwordMsg.value = '两次输入的新密码不一致'
+    return
+  }
+
+  passwordLoading.value = true
+  try {
+    await authAPI.changePassword({ currentPassword: current, newPassword: newPass, confirmPassword: confirm })
+    passwordMsg.value = '密码修改成功'
+    passwordOk.value = true
+    passwordForm.value = { current: '', newPass: '', confirm: '' }
+  } catch (e: any) {
+    passwordMsg.value = e?.message || '修改失败，请重试'
+  }
+  finally {
+    passwordLoading.value = false
   }
 }
 

@@ -1,113 +1,115 @@
 <template>
-  <div class="min-h-screen flex flex-col relative z-10">
+  <a href="#main-content"
+    class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-teal-500 focus:text-white focus:shadow-lg focus:outline-none">
+    跳转到主要内容
+  </a>
+
+  <!-- Top gradient highlight -->
+  <div class="fixed top-0 left-0 right-0 pointer-events-none z-0 h-[180px]"
+    style="background: linear-gradient(180deg, oklch(0.9 0.01 var(--hue) / 0.04), transparent);" />
+
+  <!-- Splash Screen -->
+  <Suspense>
+    <SplashScreen />
+  </Suspense>
+
+  <!-- Background particles -->
+  <Suspense>
+    <ParticleBackground />
+  </Suspense>
+
+  <!-- Click ripple effect -->
+  <Suspense>
+    <ClickRipple />
+  </Suspense>
+
+  <Suspense>
     <PageBackground />
-    <Header />
-    <main class="flex-grow pt-20">
+  </Suspense>
+
+  <!-- Full Layout (三栏) for public pages -->
+  <MainLayout v-if="useFullLayout">
+    <template #left>
+      <LeftSidebar />
+    </template>
+    <div id="main-content">
       <router-view v-slot="{ Component }">
         <Transition
           name="page-transition"
           mode="out-in"
           @before-enter="onBeforeEnter"
-          @enter="onEnter"
-          @leave="onLeave"
         >
           <component :is="Component" :key="$route.path" />
         </Transition>
       </router-view>
-    </main>
-    <Footer />
-    <BackgroundEditor v-if="authStore.canEdit" />
+    </div>
+    <template #right>
+      <DynamicRightSidebar />
+    </template>
+  </MainLayout>
+
+  <!-- Minimal layout for login/cms/editor -->
+  <div v-else class="min-h-screen flex flex-col relative z-10" id="main-content">
+    <router-view v-slot="{ Component }">
+      <component :is="Component" :key="$route.path" />
+    </router-view>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
-import Header from './components/Header.vue'
-import Footer from './components/Footer.vue'
-import PageBackground from './components/PageBackground.vue'
-import BackgroundEditor from './components/BackgroundEditor.vue'
+import { computed, defineAsyncComponent, onMounted, onUnmounted } from 'vue'
+import { useRoute } from 'vue-router'
+import MainLayout from './layouts/MainLayout.vue'
+import LeftSidebar from './components/layout/LeftSidebar.vue'
+import DynamicRightSidebar from './components/DynamicRightSidebar.vue'
 import { useThemeStore } from './stores/theme'
-import { useAuthStore } from './stores/auth'
+
+const SplashScreen = defineAsyncComponent(() => import('./components/SplashScreen.vue'))
+const ParticleBackground = defineAsyncComponent(() => import('./components/ParticleBackground.vue'))
+const PageBackground = defineAsyncComponent(() => import('./components/PageBackground.vue'))
+const ClickRipple = defineAsyncComponent(() => import('./components/ClickRipple.vue'))
 
 const themeStore = useThemeStore()
-const authStore = useAuthStore()
+const route = useRoute()
+
+const minimalRoutes = ['/login', '/cms', '/editor', '/saved-articles', '/user']
+const useFullLayout = computed(() => {
+  return !minimalRoutes.some(r => route.path.startsWith(r))
+})
 
 let unwatchSystemTheme: (() => void) | undefined
 
 onMounted(() => {
-  // 初始化主题
   themeStore.initTheme()
   unwatchSystemTheme = themeStore.watchSystemTheme()
+  // Track page view
+  fetch('/api/analytics/hit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ page: window.location.pathname }) }).catch(() => {})
 })
 
 onUnmounted(() => {
-  // 清理系统主题监听
   if (unwatchSystemTheme) {
     unwatchSystemTheme()
   }
 })
 
-// 页面切换动画回调
 const onBeforeEnter = () => {
   window.scrollTo({ top: 0, behavior: 'instant' })
-}
-
-const onEnter = (el: Element) => {
-  (el as HTMLElement).style.opacity = '1'
-}
-
-const onLeave = (el: Element) => {
-  (el as HTMLElement).style.opacity = '0'
 }
 </script>
 
 <style>
-/* 页面切换动画 */
-.page-transition-enter-active,
-.page-transition-leave-active {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.page-transition-enter-active {
+  transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1), transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
-
+.page-transition-leave-active {
+  transition: opacity 0.2s ease-in, transform 0.2s ease-in;
+}
 .page-transition-enter-from {
   opacity: 0;
-  transform: translateY(8px);
+  transform: translateY(12px) scale(0.98);
 }
-
 .page-transition-leave-to {
   opacity: 0;
-  transform: translateY(-8px);
-}
-
-/* 平滑滚动 */
-html {
-  scroll-behavior: smooth;
-}
-
-/* 自定义滚动条 */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(156, 163, 175, 0.5);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(156, 163, 175, 0.8);
-}
-
-/* 暗黑模式滚动条 */
-.dark ::-webkit-scrollbar-thumb {
-  background: rgba(75, 85, 99, 0.5);
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(75, 85, 99, 0.8);
+  transform: translateY(-6px);
 }
 </style>

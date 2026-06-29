@@ -26,7 +26,7 @@ export const defaultContents: ContentItem[] = [
     content: JSON.stringify({
       title: '欢迎来到 jiaandmiya',
       subtitle: '简约 · 技术 · 二次元 · 社区',
-      description: '以我的路程视角出发，分享技术、记录生活、传递温度\nMiya 在线当管家 ✨',
+      description: '以我的路程视角出发，分享技术、记录生活、传递温度',
       features: [
         {
           icon: '💻',
@@ -95,7 +95,7 @@ export const defaultContents: ContentItem[] = [
       title: 'jiaandmiya',
       subtitle: '简约 · 技术 · 二次元 · 社区',
       description: '以我的路程视角出发',
-      miyaText: 'Miya 在线当管家 ✨'
+      miyaText: '分享技术 · 记录生活'
     }),
     page: 'global',
     section: 'footer',

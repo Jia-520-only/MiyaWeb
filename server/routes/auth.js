@@ -259,6 +259,67 @@ router.put('/profile', authenticate(), async (req, res) => {
   }
 });
 
+// 修改账户（用户名 + 密码，需验证当前密码）
+router.put('/account', authenticate(), async (req, res) => {
+  try {
+    const { currentPassword, newUsername, newPassword } = req.body;
+
+    if (!currentPassword) {
+      return res.status(400).json({ error: '请输入当前密码' });
+    }
+
+    const user = await dbGet(
+      'SELECT id, username, password_hash FROM users WHERE id = ?',
+      [req.user.userId]
+    );
+    if (!user) return res.status(404).json({ error: '用户不存在' });
+
+    const isValid = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!isValid) return res.status(401).json({ error: '当前密码错误' });
+
+    const updates = [];
+    const params = [];
+
+    if (newUsername && newUsername !== user.username) {
+      if (newUsername.length < 2 || newUsername.length > 50) {
+        return res.status(400).json({ error: '用户名需 2-50 个字符' });
+      }
+      if (!/^[a-zA-Z0-9_\u4e00-\u9fa5]+$/.test(newUsername)) {
+        return res.status(400).json({ error: '用户名只能包含字母、数字、下划线和中文' });
+      }
+      const existing = await dbGet('SELECT id FROM users WHERE username = ? AND id != ?', [newUsername, req.user.userId]);
+      if (existing) return res.status(400).json({ error: '该用户名已被使用' });
+      updates.push('username = ?');
+      params.push(newUsername);
+    }
+
+    if (newPassword) {
+      if (!/^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(newPassword)) {
+        return res.status(400).json({ error: '新密码至少8位，需包含字母和数字' });
+      }
+      const salt = await bcrypt.genSalt(10);
+      const hash = await bcrypt.hash(newPassword, salt);
+      updates.push('password_hash = ?');
+      params.push(hash);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ error: '没有需要修改的内容' });
+    }
+
+    updates.push('updated_at = CURRENT_TIMESTAMP');
+    params.push(req.user.userId);
+    await dbRun(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`, params);
+
+    const updated = await dbGet('SELECT id, username, role FROM users WHERE id = ?', [req.user.userId]);
+    res.json({ message: '账户修改成功', user: { id: updated.id, username: updated.username, role: updated.role } });
+
+  } catch (error) {
+    console.error('修改账户失败:', error);
+    res.status(500).json({ error: '修改账户失败' });
+  }
+});
+
 // 退出登录（客户端需要删除本地token）
 router.post('/logout', authenticate(), (req, res) => {
   res.json({ message: '已退出登录' });

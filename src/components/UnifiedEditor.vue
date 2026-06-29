@@ -1,13 +1,13 @@
-<template>
+﻿<template>
   <div class="min-h-screen pt-20">
     <div class="container mx-auto px-6 py-12">
       <div class="max-w-5xl mx-auto">
         <!-- Page Header -->
         <div class="text-center mb-12">
-          <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 class="text-4xl font-bold text-white mb-4">
             {{ isEdit ? '编辑' : '创建' }}{{ contentType === 'note' ? '笔记' : '文章' }}
           </h1>
-          <p class="text-gray-600 dark:text-gray-400">
+          <p class="text-gray-400">
             {{ contentType === 'note' ? '记录你的技术学习与心得' : '分享你的技术见解与经验' }}
           </p>
         </div>
@@ -20,7 +20,7 @@
               'px-8 py-3 rounded-xl font-medium transition-all duration-300',
               contentType === 'note'
                 ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg shadow-pink-500/25 transform scale-105'
-                : 'bg-white/50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 hover:bg-white/70 dark:hover:bg-gray-800/70 backdrop-blur-sm'
+                : 'bg-black/30 text-gray-400 hover:bg-white/70 dark:hover:bg-gray-800/70 backdrop-blur-sm'
             ]"
           >
             📖 笔记
@@ -31,7 +31,7 @@
               'px-8 py-3 rounded-xl font-medium transition-all duration-300',
               contentType === 'article'
                 ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg shadow-pink-500/25 transform scale-105'
-                : 'bg-white/50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 hover:bg-white/70 dark:hover:bg-gray-800/70 backdrop-blur-sm'
+                : 'bg-black/30 text-gray-400 hover:bg-white/70 dark:hover:bg-gray-800/70 backdrop-blur-sm'
             ]"
           >
             📝 文章
@@ -41,20 +41,20 @@
         <GlassCard class="p-8 space-y-6">
           <!-- 标题 -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label class="block text-sm font-medium text-gray-300 mb-2">
               标题
             </label>
             <input
               v-model="form.title"
               type="text"
-              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 transition-all"
+              class="w-full px-4 py-3 border border-white/10 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent bg-black/35 text-gray-200 transition-all"
               placeholder="输入标题..."
             />
           </div>
 
           <!-- 分类 -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label class="block text-sm font-medium text-gray-300 mb-2">
               分类
             </label>
             <div class="flex flex-wrap gap-2">
@@ -66,7 +66,7 @@
                   'px-4 py-2 rounded-lg text-sm font-medium transition-all',
                   form.category === cat.id
                     ? 'bg-pink-500 text-white shadow-md'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                    : 'bg-white/5 text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                 ]"
               >
                 {{ cat.icon }} {{ cat.name }}
@@ -76,13 +76,13 @@
 
           <!-- 封面设置 (仅笔记) -->
           <div v-if="contentType === 'note'" class="space-y-4">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label class="block text-sm font-medium text-gray-300 mb-2">
               封面设置
             </label>
             <div class="flex gap-4">
               <!-- 封面图片上传 -->
               <div class="flex-1">
-                <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center hover:border-pink-500 transition-colors">
+                <div class="border-2 border-dashed border-white/10 rounded-xl p-6 text-center hover:border-pink-500 transition-colors">
                   <input
                     ref="coverFileInput"
                     type="file"
@@ -124,7 +124,7 @@
               </div>
               <!-- 颜色选择 -->
               <div class="w-32">
-                <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">或选择颜色</p>
+                <p class="text-xs text-gray-400 mb-2">或选择颜色</p>
                 <div class="grid grid-cols-2 gap-2">
                   <button
                     v-for="color in coverColors"
@@ -144,26 +144,26 @@
 
           <!-- 摘要 -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label class="block text-sm font-medium text-gray-300 mb-2">
               摘要
             </label>
             <textarea
               v-model="form.summary"
               rows="3"
-              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 transition-all resize-none"
+              class="w-full px-4 py-3 border border-white/10 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent bg-black/35 text-gray-200 transition-all resize-none"
               placeholder="简要描述内容..."
             />
           </div>
 
           <!-- 标签 -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label class="block text-sm font-medium text-gray-300 mb-2">
               标签（用逗号分隔）
             </label>
             <input
               v-model="tagsInput"
               type="text"
-              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 transition-all"
+              class="w-full px-4 py-3 border border-white/10 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent bg-black/35 text-gray-200 transition-all"
               placeholder="例如: Vue, TypeScript, 前端"
             />
             <!-- 已选择的标签 -->
@@ -196,14 +196,14 @@
           </div>
 
           <!-- 选项 -->
-          <div class="flex flex-wrap gap-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div class="flex flex-wrap gap-6 pt-4 border-t border-white/8">
             <label class="flex items-center gap-2 cursor-pointer">
               <input
                 v-model="form.featured"
                 type="checkbox"
                 class="w-4 h-4 text-pink-500 rounded focus:ring-pink-500"
               />
-              <span class="text-sm text-gray-700 dark:text-gray-300">设为精选</span>
+              <span class="text-sm text-gray-300">设为精选</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
               <input
@@ -211,12 +211,12 @@
                 type="checkbox"
                 class="w-4 h-4 text-pink-500 rounded focus:ring-pink-500"
               />
-              <span class="text-sm text-gray-700 dark:text-gray-300">立即发布</span>
+              <span class="text-sm text-gray-300">立即发布</span>
             </label>
           </div>
 
           <!-- 操作按钮 -->
-          <div class="flex gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div class="flex gap-4 pt-4 border-t border-white/8">
             <button
               @click="saveContent"
               class="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white rounded-xl font-medium transition-all shadow-lg shadow-pink-500/25"
@@ -225,7 +225,7 @@
             </button>
             <button
               @click="resetForm"
-              class="px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-100 rounded-xl font-medium transition-colors"
+              class="px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-100 rounded-xl font-medium transition-colors"
             >
               重置
             </button>

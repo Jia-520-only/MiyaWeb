@@ -24,7 +24,7 @@ async function createCMSTables() {
         slug VARCHAR(200) UNIQUE NOT NULL,
         description TEXT,
         cover_image VARCHAR(500),
-        type VARCHAR(30) NOT NULL CHECK(type IN ('book_group', 'companion_group')),
+        type VARCHAR(30) NOT NULL CHECK(type IN ('book_group', 'companion_group', 'blog')),
         icon VARCHAR(100),
         sort_order INTEGER DEFAULT 0,
         is_visible BOOLEAN DEFAULT 1,
@@ -45,13 +45,17 @@ async function createCMSTables() {
         slug VARCHAR(255) UNIQUE NOT NULL,
         description TEXT,
         cover_image VARCHAR(500),
-        type VARCHAR(30) NOT NULL CHECK(type IN ('book', 'companion')),
+        type VARCHAR(30) NOT NULL CHECK(type IN ('book', 'companion', 'post')),
         author_id INTEGER,
         tags TEXT,
         custom_data TEXT,
         sort_order INTEGER DEFAULT 0,
         is_visible BOOLEAN DEFAULT 1,
         view_count INTEGER DEFAULT 0,
+        status VARCHAR(20) DEFAULT 'published' CHECK(status IN ('draft', 'published')),
+        content TEXT,
+        content_type VARCHAR(20) DEFAULT 'markdown' CHECK(content_type IN ('markdown', 'txt', 'richtext')),
+        source_file VARCHAR(500),
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (collection_id) REFERENCES collections(id) ON DELETE CASCADE,
@@ -209,6 +213,66 @@ async function createCMSTables() {
     await dbRun('CREATE INDEX IF NOT EXISTS idx_resource_links_category ON resource_links(category)');
     await dbRun('CREATE INDEX IF NOT EXISTS idx_resource_links_visible ON resource_links(is_visible)');
     await dbRun('CREATE INDEX IF NOT EXISTS idx_profiles_user ON profiles(user_id)');
+
+    // ── 侧边栏图片表 ──
+    await dbRun(`
+      CREATE TABLE IF NOT EXISTS sidebar_images (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        filename VARCHAR(255) NOT NULL,
+        original_name VARCHAR(255) NOT NULL,
+        path VARCHAR(500) NOT NULL,
+        thumb_path VARCHAR(500),
+        mime_type VARCHAR(100),
+        size INTEGER,
+        width INTEGER,
+        height INTEGER,
+        sort_order INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    await dbRun('CREATE INDEX IF NOT EXISTS idx_sidebar_sort ON sidebar_images(sort_order)');
+
+    // ── OC 图片关联表 ──
+    await dbRun(`
+      CREATE TABLE IF NOT EXISTS oc_images (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        item_id INTEGER NOT NULL,
+        upload_id INTEGER NOT NULL,
+        sort_order INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    await dbRun('CREATE INDEX IF NOT EXISTS idx_oc_images_item ON oc_images(item_id)');
+
+    // ── Banner 图片表 ──
+    await dbRun(`
+      CREATE TABLE IF NOT EXISTS banner_images (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        filename VARCHAR(255) NOT NULL,
+        original_name VARCHAR(255) NOT NULL,
+        path VARCHAR(500) NOT NULL,
+        thumb_path VARCHAR(500),
+        mime_type VARCHAR(100),
+        size INTEGER,
+        width INTEGER,
+        height INTEGER,
+        sort_order INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    await dbRun('CREATE INDEX IF NOT EXISTS idx_banner_sort ON banner_images(sort_order)');
+
+    // ── 侧边栏推荐链接表 ──
+    await dbRun(`
+      CREATE TABLE IF NOT EXISTS sidebar_links (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        label VARCHAR(255) NOT NULL,
+        url VARCHAR(1000) NOT NULL,
+        sort_order INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     console.log('  索引创建成功');
 
     console.log('CMS 内容管理系统数据库表创建完成!');

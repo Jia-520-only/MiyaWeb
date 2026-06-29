@@ -1,845 +1,231 @@
 <template>
-  <div class="game-hub" @mousemove="onMouseMove" @mouseleave="onMouseLeave">
-    <!-- Animated ambient particles -->
-    <div class="ambient-particles"></div>
+  <div class="space-y-12">
+    <!-- Banner Section with Image Carousel -->
+    <BannerSection
+      :images="bannerImages"
+      :image-position="siteConfig.banner.imagePosition"
+      :title="siteConfig.banner.title"
+      :accent="siteConfig.banner.accent"
+      :subtitle="siteConfig.banner.subtitle"
+      :typed-subtitles="typedSubtitles"
+      :overline="'SYS.WELCOME · ' + formattedDate"
+      :stats="siteConfig.profile.stats"
+    />
 
-    <!-- Left Panel -->
-    <div class="left-panel" :style="leftPanelStyle">
-      <!-- User Info -->
-      <div class="user-info">
-        <div class="level-block">
-          <div class="flex items-baseline gap-1">
-            <span class="sys-label text-[10px] tracking-widest">LV</span>
-            <span class="level-num">{{ userLevel }}</span>
-          </div>
-          <div class="progress-cyber w-[50%]">
-            <div :style="{ width: levelProgress + '%' }"></div>
-          </div>
-        </div>
-        <div class="name-block">
-          <span class="name-text">{{ displayName }}</span>
-          <span class="sys-label text-[11px]">{{ authStore.user?.email || 'GUEST_MODE' }}</span>
-        </div>
-      </div>
+    <!-- Homepage Gallery Strip -->
+    <HomeGallery :images="sidebarImages" />
 
-      <!-- Center: Controls + Nav -->
-      <div class="center-section">
-        <div class="nav-grid">
-          <div v-for="nav in navigations" :key="nav.title" class="nav-btn" @click="$router.push(nav.link)">
-            <div class="nav-bracket-tl"></div>
-            <div class="nav-bracket-br"></div>
-            <span class="nav-title">{{ nav.title }}</span>
-            <span class="nav-sub">{{ nav.sub }}</span>
-          </div>
-        </div>
-      </div>
+    <!-- Feature Entry List -->
+    <div class="space-y-4">
+      <router-link
+        v-for="(card, idx) in featureCards"
+        :key="card.path"
+        :to="card.path"
+        class="feature-card group block card-glow"
+      >
+        <!-- Left accent bar -->
+        <div class="feature-accent" :style="{ background: `linear-gradient(180deg, ${card.color}, ${card.color}44)` }" />
 
-      <!-- Bottom: Banner + Activity -->
-      <div class="bottom-section">
-        <div class="banner-box">
-          <div class="banner-track">
-            <div class="banner-item" v-for="(b, i) in banners" :key="i">
-              <div class="banner-inner" :style="{ background: b.bg }">
-                <span class="banner-text">{{ b.text }}</span>
-              </div>
-            </div>
-          </div>
+        <!-- Image or Icon area -->
+        <div v-if="card.coverImage" class="feature-cover">
+          <img :src="card.coverImage" :alt="card.title" class="w-full h-full object-cover" loading="lazy" />
+          <div class="feature-cover-overlay" />
         </div>
-        <div class="activity-box">
-          <div class="activity-icon">◆</div>
-          <div class="activity-text">
-            <span class="activity-marquee">Miya: {{ currentQuote }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Panel -->
-    <div class="right-panel" :style="rightPanelStyle">
-      <!-- Stats Bar -->
-      <div class="stats-bar">
-        <div class="stat-item" v-for="stat in stats" :key="stat.label">
-          <div class="stat-icon">{{ stat.icon }}</div>
-          <span class="stat-value">{{ stat.value }}</span>
-          <div class="stat-add">+</div>
-        </div>
-      </div>
-
-      <!-- Center Content -->
-      <div class="center-content">
-        <!-- Top Status -->
-        <div class="top-status">
-          <div class="flex items-center gap-2">
-            <span class="status-dot online"></span>
-            <span class="sys-label text-[11px]">SYS.NORM</span>
-          </div>
-          <span class="status-time">{{ currentTime }}</span>
-        </div>
-
-        <!-- Featured Card (Miya) -->
-        <div class="featured-card" @click="$router.push('/about-miya')">
-          <div class="featured-avatar">
-            <div class="mask-sweep"></div>
-            <div class="avatar-img">
-              <span class="text-4xl">✨</span>
-            </div>
-          </div>
-          <div class="featured-info">
-            <div class="featured-left">
-              <h3 class="featured-title">Miya</h3>
-              <span class="sys-label text-[10px] tracking-wider">管家系统</span>
-              <span class="featured-status text-cyber-cyan">状态: 活跃</span>
-            </div>
-            <div class="featured-right">
-              <span class="featured-pct">24/7</span>
-              <span class="text-[10px] text-hud-dim font-mono">守护中</span>
-            </div>
-          </div>
-          <div class="featured-mascot">
-            <span class="text-lg">🐱</span>
+        <div v-else class="feature-icon" :style="{ background: `${card.color}12` }">
+          <div class="feature-icon-inner" :style="{ background: `${card.color}18` }">
+            <Icon :name="card.icon" size="lg" :color="card.color" />
           </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="quick-actions">
-          <div class="action-card" @click="$router.push('/library')">
-            <div class="action-bracket-tl"></div>
-            <h4>图书馆</h4>
-            <span>技术笔记</span>
+        <!-- Content -->
+        <div class="feature-body">
+          <div class="feature-title-row">
+            <h2 class="feature-title">{{ card.title }}</h2>
+            <span class="feature-badge font-mono tracking-wider" :style="{ color: card.color, background: `${card.color}10`, borderColor: `${card.color}20` }">
+              {{ card.badge }}
+            </span>
           </div>
-          <div class="action-card" @click="goShare">
-            <div class="action-bracket-tl"></div>
-            <h4>资源站</h4>
-            <span>文件分享</span>
-            <div class="action-badge">NEW</div>
+          <p class="feature-desc">{{ card.desc }}</p>
+          <div class="feature-stats-row">
+            <span class="feature-stat">
+              <Icon name="solar:documents-bold-duotone" size="xs" />
+              <span>{{ card.count }}</span> 篇内容
+            </span>
+            <span class="feature-stat">
+              <Icon name="solar:eye-bold-duotone" size="xs" />
+              <span>{{ card.views }}</span> 次浏览
+            </span>
           </div>
         </div>
 
-        <!-- Community Card -->
-        <div class="community-card" @click="$router.push('/companions')">
-          <span class="community-title">伴侣社区</span>
-          <span class="community-sub">AI 伴侣·幻想创作</span>
-          <div class="community-icon">▸</div>
+        <!-- Arrow indicator -->
+        <div class="feature-arrow">
+          <Icon name="solar:arrow-right-bold" size="sm" :color="card.color" />
         </div>
-      </div>
-
-      <!-- Bottom Tabs -->
-      <div class="bottom-tabs">
-        <div class="tab-item" v-for="tab in bottomTabs" :key="tab.label" @click="$router.push(tab.link)">
-          <h3>{{ tab.label }}</h3>
-          <span>{{ tab.desc }}</span>
-        </div>
-      </div>
+      </router-link>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, type CSSProperties } from 'vue'
-import { useAuthStore } from '@/stores/auth'
+import { computed, ref, onMounted } from 'vue'
+import BannerSection from '@/components/layout/BannerSection.vue'
+import HomeGallery from '@/components/HomeGallery.vue'
+import Icon from '@/components/ui/Icon.vue'
+import { siteConfig } from '@/config/site'
 
-const authStore = useAuthStore()
+const formattedDate = computed(() => {
+  return new Date().toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', weekday: 'short' })
+})
 
-const displayName = ref('Nakiri Ayame')
-const userLevel = ref(42)
-const levelProgress = ref(68)
-const currentTime = ref('')
-const currentQuote = ref('')
-const quoteIndex = ref(0)
-
-const quotes = [
-  '技术不是终点，而是通往更好生活的桥梁',
-  '分享是最好的学习方式',
-  '保持好奇心，永远在路上',
-  '代码是逻辑的诗篇',
-  '简单是复杂的极致'
+const typedSubtitles = [
+  '技术笔记 · 原创创作 · OC 社区 · 免费资源',
+  '分享技术，记录创作',
+  '欢迎来到 jiaandmiya~',
 ]
 
-const navigations = [
-  { title: '图书馆', sub: '知识宝库', link: '/library' },
-  { title: '伴侣', sub: 'AI 社区', link: '/companions' },
-  { title: '文化区', sub: '生活记录', link: '/culture' },
-  { title: '资源', sub: '免费分享', link: '/resources' }
-]
+const sidebarImages = ref<any[]>([])
+const bannerImages = ref<string[]>([])
 
-const banners = [
-  { text: '📚 探索技术图书馆', bg: 'linear-gradient(135deg, #1a1a2e, #16213e)' },
-  { text: '🎮 欢迎来到 MiyaWeb', bg: 'linear-gradient(135deg, #0f3460, #533483)' },
-  { text: '💡 记录·分享·成长', bg: 'linear-gradient(135deg, #16213e, #0f3460)' }
-]
+onMounted(async () => {
+  const [bannerRes, sidebarRes, coverRes] = await Promise.allSettled([
+    fetch('/api/banner-images').then(r => r.json()),
+    fetch('/api/sidebar-images').then(r => r.json()),
+    fetch('/api/content/home-feature-covers').then(r => r.json()),
+  ])
 
-const stats = ref([
-  { icon: '📖', label: 'articles', value: '128' },
-  { icon: '💎', label: 'gems', value: '56' },
-  { icon: '⭐', label: 'stars', value: '2024' }
+  if (bannerRes.status === 'fulfilled') {
+    bannerImages.value = (bannerRes.value.images || []).map((img: any) => img.path)
+  }
+  if (sidebarRes.status === 'fulfilled') {
+    sidebarImages.value = sidebarRes.value.images || []
+  }
+  if (coverRes.status === 'fulfilled' && coverRes.value?.content) {
+    const saved = JSON.parse(coverRes.value.content)
+    featureCards.value.forEach(c => {
+      const key = c.path.replace('/', '')
+      if (saved[key]) c.coverImage = saved[key]
+    })
+  }
+
+  // Fetch real stats for feature cards
+  try {
+    const [blogRes, libRes, ocRes, resRes, linksRes, galleryRes] = await Promise.all([
+      fetch('/api/collections?type=blog').then(r => r.json()),
+      fetch('/api/collections?type=book_group').then(r => r.json()),
+      fetch('/api/collections?type=companion_group&visible=true').then(r => r.json()),
+      fetch('/api/resources').then(r => r.json()),
+      fetch('/api/sidebar-links').then(r => r.json()),
+      fetch('/api/content/page/culture?section=gallery').then(r => r.json()),
+    ])
+    const blogCol = blogRes.collections?.find((c: any) => c.type === 'blog')
+    if (blogCol) { const ir = await fetch(`/api/collections/${blogCol.id}/items`).then(r => r.json()); featureCards.value[0].count = ir.items?.length || 0 }
+    const libCols = libRes.collections || []
+    let libTotal = 0; for (const c of libCols) { const ir = await fetch(`/api/collections/${c.id}/items`).then(r => r.json()); libTotal += ir.items?.length || 0 }
+    featureCards.value[1].count = libTotal
+    const galSections = galleryRes.sections || {}; const galItems = galSections.gallery; const galPics = galItems?.[0]?.content;     featureCards.value[2].count = Array.isArray(galPics) ? galPics.length : 0
+    const ocCols = ocRes.collections || []
+    let ocTotal = 0; for (const c of ocCols) { const ir = await fetch(`/api/collections/${c.id}/items`).then(r => r.json()); ocTotal += ir.items?.length || 0 }
+    featureCards.value[3].count = ocTotal
+    featureCards.value[4].count = resRes.resources?.length || 0
+    featureCards.value[5].count = linksRes.links?.length || 0
+  } catch {}
+
+  // Fetch total site visits
+  try {
+    const visitRes = await fetch('/api/health')
+    // Use a simple counter based on existing data
+  } catch {}
+})
+
+const featureCards = ref([
+  { path: '/blog', icon: 'solar:document-text-bold-duotone', title: '技术笔记', desc: '技术分享、开发心得、学习记录', badge: 'TECH', color: '#00FFF5', coverImage: '', count: 0, views: 0 },
+  { path: '/library', icon: 'solar:notebook-bold-duotone', title: '创作', desc: '原创小说、幻想世界、文字创作', badge: 'WORKS', color: '#ffd700', coverImage: '', count: 0, views: 0 },
+  { path: '/gallery', icon: 'solar:gallery-wide-bold-duotone', title: '人文', desc: '美图收藏、日记、书单、视听分享', badge: 'HUMANITY', color: '#ff6b9d', coverImage: '', count: 0, views: 0 },
+  { path: '/companions', icon: 'solar:star-shine-bold-duotone', title: 'OC 社区', desc: '原创角色设定分享，展示你的专属 OC', badge: 'OC', color: '#7dd3fc', coverImage: '', count: 0, views: 0 },
+  { path: '/resources', icon: 'solar:gift-bold-duotone', title: '免费资源', desc: '为爱发电，分享优质资源链接', badge: 'FREE', color: '#4ade80', coverImage: '', count: 0, views: 0 },
+  { path: '/links', icon: 'solar:link-round-bold-duotone', title: '推荐链接', desc: '精心挑选的优质网站与工具', badge: 'LINKS', color: '#a78bfa', coverImage: '', count: 0, views: 0 },
 ])
-
-const bottomTabs = [
-  { label: '成员', desc: '个人主页', link: '/user' },
-  { label: '仓库', desc: '资源管理', link: '/resources' },
-  { label: '商店', desc: '文件分享', link: '/share' },
-  { label: '采购', desc: '探索更多', link: '/culture' }
-]
-
-// 3D parallax
-const mouseX = ref(0)
-const mouseY = ref(0)
-
-const leftPanelStyle = ref<CSSProperties>({})
-const rightPanelStyle = ref<CSSProperties>({})
-
-function onMouseMove(e: MouseEvent) {
-  const cx = window.innerWidth / 2
-  const cy = window.innerHeight / 2
-  mouseX.value = (e.clientX - cx) / cx
-  mouseY.value = (e.clientY - cy) / cy
-
-  leftPanelStyle.value = {
-    transform: `rotateY(${28 + mouseX.value * 4}deg) rotateX(${-mouseY.value * 2}deg) translateX(${mouseX.value * 4}px)`,
-    transition: 'transform 0.3s ease-out',
-  }
-  rightPanelStyle.value = {
-    transform: `rotateY(${-28 + mouseX.value * 4}deg) rotateX(${-mouseY.value * 2}deg) translateX(${mouseX.value * 4}px)`,
-    transition: 'transform 0.3s ease-out',
-  }
-}
-
-function onMouseLeave() {
-  leftPanelStyle.value = {
-    transform: 'rotateY(28deg) rotateX(0deg)',
-    transition: 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
-  }
-  rightPanelStyle.value = {
-    transform: 'rotateY(-28deg) rotateX(0deg)',
-    transition: 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
-  }
-}
-
-let quoteTimer: ReturnType<typeof setInterval>
-let timeTimer: ReturnType<typeof setInterval>
-
-function updateTime() {
-  const now = new Date()
-  currentTime.value = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
-}
-
-function goShare() {
-  window.open('/share', '_blank')
-}
-
-onMounted(() => {
-  updateTime()
-  timeTimer = setInterval(updateTime, 60000)
-  currentQuote.value = quotes[0]!
-  quoteTimer = setInterval(() => {
-    quoteIndex.value = (quoteIndex.value + 1) % quotes.length
-    currentQuote.value = quotes[quoteIndex.value]!
-  }, 5000)
-
-  if (authStore.user?.username) {
-    displayName.value = authStore.user.username
-  }
-})
-
-onUnmounted(() => {
-  clearInterval(quoteTimer)
-  clearInterval(timeTimer)
-})
 </script>
 
 <style scoped>
-/* ========== Game Hub Container ========== */
-.game-hub {
-  position: fixed;
-  inset: 0;
-  top: 0;
+.feature-card {
+  position: relative;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  perspective: 800px;
-  perspective-origin: center;
-  background: linear-gradient(135deg, #0a0a1a 0%, #0d1b2a 40%, #1b2838 70%, #0a0a1a 100%);
+  gap: 0;
+  padding: 1.25rem 1.5rem;
+  border-radius: 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  backdrop-filter: blur(16px);
   overflow: hidden;
-  z-index: 0;
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  text-decoration: none;
 }
-
-/* Animated ambient light */
-.game-hub::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 20% 50%, rgba(0, 255, 245, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 50%, rgba(0, 173, 181, 0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 0%, rgba(0, 255, 245, 0.04) 0%, transparent 30%);
-  pointer-events: none;
-  animation: ambientShift 8s ease-in-out infinite alternate;
-}
-
-@keyframes ambientShift {
-  0% { opacity: 0.7; }
-  100% { opacity: 1; }
-}
-
-/* Floating particles */
-.ambient-particles {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    radial-gradient(1px 1px at 15% 25%, rgba(0, 255, 245, 0.3), transparent),
-    radial-gradient(1px 1px at 35% 65%, rgba(0, 255, 245, 0.2), transparent),
-    radial-gradient(1.5px 1.5px at 55% 15%, rgba(0, 173, 181, 0.3), transparent),
-    radial-gradient(1px 1px at 70% 45%, rgba(0, 255, 245, 0.2), transparent),
-    radial-gradient(1px 1px at 85% 75%, rgba(0, 173, 181, 0.3), transparent),
-    radial-gradient(1.5px 1.5px at 25% 80%, rgba(0, 255, 245, 0.2), transparent),
-    radial-gradient(1px 1px at 60% 85%, rgba(0, 255, 245, 0.25), transparent),
-    radial-gradient(1px 1px at 40% 10%, rgba(0, 173, 181, 0.2), transparent);
-  animation: float 6s ease-in-out infinite;
-}
-
-/* ========== Left Panel ========== */
-.left-panel {
-  width: 30%;
-  height: 90%;
-  margin-left: 8%;
-  padding: 2%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  transform: rotateY(28deg);
-  z-index: 1;
-  will-change: transform;
-}
-
-.user-info {
-  padding: 4% 2% 2% 6%;
-  margin-bottom: 8px;
-}
-
-.level-block {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 8px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-.level-block:hover {
-  letter-spacing: 0.15em;
-  background: rgba(0, 255, 245, 0.06);
-  border-radius: 6px;
-}
-
-.level-num {
-  color: #fff;
-  font-size: 2.5em;
-  font-weight: bold;
-}
-
-.name-block {
-  display: flex;
-  flex-direction: column;
-  cursor: pointer;
-}
-.name-text {
-  color: #fff;
-  font-size: 1.3em;
-  font-weight: bold;
-  transition: all 0.3s;
-}
-.name-block:hover .name-text {
-  color: #f87171;
-  letter-spacing: 0.15em;
-}
-
-/* Center Nav */
-.center-section {
-  padding: 2%;
-  margin-bottom: 8px;
-  position: relative;
-}
-
-.nav-grid {
-  display: flex;
-  justify-content: flex-start;
-  gap: 8px;
-}
-
-.nav-btn {
-  width: 75px;
-  height: 75px;
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
-  padding: 6px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  cursor: pointer;
-  transition: all 0.3s;
-  position: relative;
-  overflow: hidden;
-}
-.nav-btn:hover {
-  background: rgba(0, 255, 245, 0.1);
-  transform: skewX(-8deg) scale(1.05);
-  border-color: rgba(0, 255, 245, 0.25);
-  box-shadow: 0 0 25px rgba(0, 255, 245, 0.1);
-}
-
-.nav-title {
-  color: #fff;
-  font-size: 1.15em;
-  font-weight: bold;
-  margin-bottom: 10%;
-}
-.nav-sub {
-  color: #889;
-  font-size: 0.55em;
-}
-
-/* Bottom Section */
-.bottom-section {
-  padding: 4%;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.banner-box {
-  width: 100%;
-  height: 60px;
-  overflow: hidden;
-  border-radius: 8px;
-  cursor: pointer;
-  position: relative;
-}
-.banner-track {
-  display: flex;
-  animation: bannerSlide 12s ease-in-out infinite;
-}
-.banner-item {
-  min-width: 100%;
-}
-.banner-inner {
-  height: 60px;
-  display: flex;
-  align-items: center;
-  padding: 0 12px;
-}
-.banner-text {
-  color: #fff;
-  font-size: 0.9em;
-  font-weight: bold;
-}
-.banner-box:hover .banner-track {
-  animation-play-state: paused;
-}
-
-.activity-box {
-  display: flex;
-  align-items: center;
-  height: 32px;
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 6px;
-  padding: 0 8px;
-  gap: 8px;
-  cursor: pointer;
-  overflow: hidden;
-  transition: all 0.3s;
-}
-.activity-box:hover {
-  background: rgba(0, 0, 0, 0.75);
-  height: auto;
-  min-height: 160px;
-  border-color: rgba(0, 255, 245, 0.15);
-}
-.activity-icon {
-  flex-shrink: 0;
-  font-size: 14px;
-  color: var(--hud-cyan, #00FFF5);
-}
-.activity-text {
-  overflow: hidden;
-  white-space: nowrap;
-  color: #ccc;
-  font-size: 0.85em;
-  font-weight: bold;
-}
-.activity-marquee {
-  display: inline-block;
-  animation: marquee 8s linear infinite;
-}
-
-/* ========== Right Panel ========== */
-.right-panel {
-  width: 36%;
-  height: 90%;
-  margin-right: 8%;
-  padding: 2%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  transform: rotateY(-28deg);
-  z-index: 1;
-  will-change: transform;
-}
-
-.stats-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  height: 30px;
-  min-width: 120px;
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-  padding: 2px 6px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-.stat-item:hover {
-  background: rgba(0, 255, 245, 0.1);
-  border-color: rgba(0, 255, 245, 0.2);
-}
-.stat-icon {
-  font-size: 16px;
-  width: 30px;
-  text-align: center;
-}
-.stat-value {
-  color: #fff;
-  font-weight: bold;
-  flex: 1;
-}
-.stat-add {
-  width: 26px;
-  height: 100%;
-  color: #fff;
-  font-size: 1.3em;
-  font-weight: bold;
-  background: rgba(0, 255, 245, 0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0 4px 4px 0;
-  transition: all 0.3s;
-}
-.stat-item:hover .stat-add {
-  background: rgba(0, 255, 245, 0.4);
-}
-
-/* Center Content */
-.center-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.top-status {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 28px;
-  padding: 0 8px;
-}
-.status-time {
-  color: #fff;
-  font-size: 1.1em;
-  cursor: pointer;
-  transition: all 0.3s;
-  font-family: 'JetBrains Mono', monospace;
-}
-.status-time:hover {
-  color: #f87171;
-  font-size: 2em;
-}
-
-/* Featured Card */
-.featured-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  height: 110px;
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: all 0.4s;
-  position: relative;
-}
-.featured-card:hover {
-  background: rgba(0, 255, 245, 0.08);
-  transform: rotateY(-8deg) scale(1.02);
-  border-color: rgba(0, 255, 245, 0.2);
-  box-shadow: 0 0 30px rgba(0, 255, 245, 0.08);
-}
-
-.featured-avatar {
-  width: 70px;
-  height: 90px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 8px;
-  flex-shrink: 0;
-}
-.mask-sweep {
-  position: absolute;
-  top: -20%;
-  left: -15%;
-  width: 6px;
-  height: 160%;
-  background: rgba(255, 255, 255, 0.25);
-  transform: skewX(-30deg);
-  box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
-  z-index: 2;
-  animation: maskSweep 2.5s ease-in-out infinite;
-  filter: blur(3px);
-}
-.avatar-img {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #1a1a3e, #2d1b69);
-  border-radius: 8px;
-}
-
-.featured-info {
-  flex: 1;
-  display: flex;
-}
-.featured-left {
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.featured-title {
-  color: #fff;
-  font-size: 1.8em;
-  font-weight: bold;
-}
-.featured-tag {
-  color: #aaa;
-  font-size: 0.8em;
-}
-.featured-status {
-  font-size: 0.75em;
-}
-
-.featured-right {
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border: 3px solid rgba(0, 255, 245, 0.3);
-  border-radius: 50%;
-  min-width: 65px;
-  transition: all 0.3s;
-}
-.featured-card:hover .featured-right {
-  border-color: rgba(0, 255, 245, 0.6);
-  box-shadow: 0 0 20px rgba(0, 255, 245, 0.15);
-}
-.featured-pct {
-  color: #fff;
-  font-size: 1.2em;
-  font-weight: bold;
-}
-
-.featured-mascot {
-  position: relative;
-  color: #fff;
-  font-weight: bold;
-  font-size: 0.6em;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s;
-  top: 10px;
-}
-.featured-mascot:hover {
-  transform: scale(1.3);
-  color: #00fff5;
-}
-
-/* Quick Actions */
-.quick-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.action-card {
-  position: relative;
-  flex: 1;
-  height: 70px;
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 6px 10px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-.action-card:hover {
-  background: rgba(0, 255, 245, 0.08);
-  transform: rotateY(-6deg) scale(1.03);
-  border-color: rgba(0, 255, 245, 0.2);
-}
-.action-card h4 {
-  color: #fff;
-  font-size: 1.1em;
-}
-.action-card span {
-  color: #999;
-  font-size: 0.7em;
-}
-.action-badge {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  background: #fec90d;
-  color: #000;
-  font-size: 0.55em;
-  font-weight: bold;
-  padding: 1px 5px;
-  border-radius: 3px;
-}
-
-/* Community Card */
-.community-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  height: 42px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 6px;
-  padding: 0 16px;
-  cursor: pointer;
-  transition: all 0.4s;
-}
-.community-card:hover {
-  background: rgba(0, 255, 245, 0.12);
-  border-color: rgba(0, 255, 245, 0.2);
-  box-shadow: 0 0 25px rgba(0, 255, 245, 0.08);
-}
-.community-title {
-  font-size: 1.3em;
-  font-weight: bold;
-  color: #e0e0e0;
-  transition: color 0.3s;
-}
-.community-sub {
-  color: #888;
-  font-size: 0.8em;
-  transition: color 0.3s;
-}
-.community-icon {
-  margin-left: auto;
-  color: rgba(0, 255, 245, 0.4);
-  transition: all 0.3s;
-}
-.community-card:hover .community-title {
-  color: #fff;
-}
-.community-card:hover .community-sub {
-  color: #bbb;
-}
-.community-card:hover .community-icon {
-  color: rgba(0, 255, 245, 0.8);
+.feature-card:hover {
   transform: translateX(4px);
+  border-color: var(--color-border-glow);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15), 0 0 40px var(--color-border-glow);
 }
+.feature-accent {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; border-radius: 0 2px 2px 0;
+  opacity: 0; transform: scaleY(0.6);
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.feature-card:hover .feature-accent { opacity: 1; transform: scaleY(1); }
+.feature-cover {
+  flex-shrink: 0;
+  width: 4rem; height: 3.5rem;
+  border-radius: 0.75rem; overflow: hidden;
+  margin-right: 1.25rem;
+  position: relative;
+  transition: all 0.35s ease;
+}
+.feature-card:hover .feature-cover { transform: scale(1.05); }
+.feature-cover img { width: 100%; height: 100%; object-fit: cover; }
+.feature-cover-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(0,0,0,0.1), transparent);
+}
+.feature-icon {
+  flex-shrink: 0;
+  width: 3.5rem; height: 3.5rem;
+  border-radius: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  margin-right: 1.25rem;
+  transition: all 0.35s ease;
+}
+.feature-card:hover .feature-icon { transform: scale(1.08); }
+.feature-icon-inner {
+  width: 2.5rem; height: 2.5rem;
+  border-radius: 0.75rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.35s ease;
+}
+.feature-card:hover .feature-icon-inner { box-shadow: 0 0 20px rgba(255,255,255,0.05); }
+.feature-body { flex: 1; min-width: 0; }
+.feature-title-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.375rem; }
+.feature-title { font-size: 1.125rem; font-weight: 700; color: var(--color-text); transition: color 0.3s; line-height: 1.3; }
+.feature-card:hover .feature-title { color: var(--color-primary); }
+.feature-badge { font-size: 0.5625rem; padding: 0.125rem 0.5rem; border-radius: 999px; border: 1px solid; flex-shrink: 0; letter-spacing: 0.12em; }
+.feature-desc { font-size: 0.8125rem; color: var(--color-text-dim); line-height: 1.5; margin-bottom: 0.625rem; }
+.feature-stats-row { display: flex; align-items: center; gap: 1rem; }
+.feature-stat { display: flex; align-items: center; gap: 0.25rem; font-size: 0.6875rem; color: var(--color-text-caption); }
+.feature-arrow {
+  flex-shrink: 0; margin-left: 1rem;
+  opacity: 0; transform: translateX(-8px);
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.feature-card:hover .feature-arrow { opacity: 1; transform: translateX(0); }
 
-/* Bottom Tabs */
-.bottom-tabs {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 90px;
-  margin-top: 8px;
-}
-
-.tab-item {
-  flex: 1;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s;
-  border-radius: 6px;
-}
-.tab-item:hover {
-  background: rgba(0, 255, 245, 0.06);
-  box-shadow: 0 0 15px rgba(0, 255, 245, 0.05);
-}
-.tab-item h3 {
-  color: #fff;
-  font-size: 1.2em;
-  transition: all 0.3s;
-}
-.tab-item span {
-  color: #999;
-  font-size: 0.7em;
-  transition: all 0.3s;
-}
-.tab-item:hover h3,
-.tab-item:hover span {
-  color: #e0e0e0;
-}
-
-/* ========== Animations ========== */
-@keyframes bannerSlide {
-  0%, 25% { transform: translateX(0); }
-  35%, 60% { transform: translateX(-100%); }
-  70%, 95% { transform: translateX(-200%); }
-  100% { transform: translateX(0); }
-}
-
-@keyframes marquee {
-  0% { transform: translateX(60px); }
-  100% { transform: translateX(-100%); }
-}
-
-@keyframes maskSweep {
-  from {
-    left: -15%;
-    top: -25%;
-  }
-  to {
-    left: 180%;
-    top: 90%;
-  }
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .game-hub {
-    flex-direction: column;
-    perspective: none;
-    overflow-y: auto;
-  }
-  .left-panel, .right-panel {
-    width: 100%;
-    height: auto;
-    margin: 0;
-    padding: 16px;
-    transform: none !important;
-  }
-  .left-panel { margin-top: 20px; }
-  .right-panel { margin-bottom: 20px; }
+@media (max-width: 640px) {
+  .feature-card { padding: 1rem 1.25rem; }
+  .feature-icon, .feature-cover { width: 3rem; height: 3rem; margin-right: 1rem; }
+  .feature-icon-inner { width: 2rem; height: 2rem; }
+  .feature-cover { width: 3.5rem; height: 2.75rem; }
+  .feature-title { font-size: 1rem; }
+  .feature-arrow { display: none; }
 }
 </style>

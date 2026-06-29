@@ -1,58 +1,41 @@
 <template>
-  <footer class="bg-gray-900/95 dark:bg-gray-950/95 backdrop-blur-lg text-white border-t border-gray-700/50 relative">
-    <div class="h-0.5 bg-gradient-to-r from-transparent via-cyber-cyan/30 to-transparent"></div>
-    <div class="container mx-auto px-4 py-4">
-      <div class="flex flex-col md:flex-row justify-between items-center gap-3">
-        <!-- 左侧：网站信息 -->
-        <div class="flex items-center gap-3">
-          <div>
-            <h3 class="text-base font-bold text-primary-400">{{ footerInfo.title }}</h3>
-            <p class="text-gray-500 text-xs">{{ footerInfo.miyaText }}</p>
-          </div>
-        </div>
+  <footer class="relative z-10 border-t" style="background: var(--color-bg-deep); border-color: var(--color-border-subtle);">
+    <div class="h-0.5" style="background: linear-gradient(90deg, transparent, var(--color-primary), transparent);" />
 
-        <!-- 中间：快速导航 -->
-        <div class="flex gap-4 text-xs">
+    <div class="container mx-auto px-6 py-8">
+      <!-- Main row: logo + links + social -->
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+        <router-link to="/" class="flex items-center gap-2.5 group flex-shrink-0">
+          <div class="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-white/10 group-hover:shadow-[0_0_12px_var(--color-primary)] transition-all duration-300">
+            <img src="/miya.png" alt="Miya" class="w-full h-full object-cover" loading="lazy" />
+          </div>
+          <span class="font-bold tracking-tight" style="color: var(--color-text);">jiaandmiya</span>
+          <span class="text-caption hidden sm:inline">· 分享站</span>
+        </router-link>
+
+        <div class="flex items-center gap-6 text-xs font-medium">
           <router-link v-for="link in footerLinks" :key="link.label"
-                       :to="link.path"
-                       class="text-gray-400 hover:text-primary-400 transition-colors">
+            :to="link.path"
+            class="footer-link">
             {{ link.label }}
           </router-link>
         </div>
 
-        <!-- 右侧：外部链接和版权 -->
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-4 text-xs">
           <a v-for="link in footerExternal" :key="link.name"
-             :href="link.url"
-             target="_blank" rel="noopener noreferrer"
-             class="text-gray-400 hover:text-primary-400 transition-colors">
+            :href="link.url" target="_blank" rel="noopener noreferrer"
+            class="footer-link">
             {{ link.name }}
           </a>
-          <span class="text-gray-500 text-xs">&copy; {{ currentYear }}</span>
+          <span class="text-caption">&copy; {{ currentYear }}</span>
         </div>
       </div>
-      
-      <!-- 备案信息 -->
-      <div class="mt-4 pt-3 border-t border-gray-700/30">
-        <div class="flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 gap-2">
-          <div class="text-center md:text-left">
-            <p>{{ serviceName }} - {{ domain }}</p>
-          </div>
-          <div class="flex flex-wrap justify-center md:justify-end items-center gap-4">
-            <!-- 联网备案信息 -->
-            <a href="https://beian.mps.gov.cn/#/query/webSearch?code=21078302000120"
-               rel="noreferrer" target="_blank"
-               class="flex items-center gap-1 text-gray-400 hover:text-primary-400 transition-colors">
-              <img src="/beian-icon.png" alt="联网备案图标" class="w-4 h-4" />
-              <span>辽公网安备21078302000120号</span>
-            </a>
-            <!-- ICP备案信息 -->
-            <a :href="icpLink" target="_blank" rel="noopener noreferrer"
-               class="text-gray-400 hover:text-primary-400 transition-colors">
-              {{ icpNumber }}
-            </a>
-          </div>
-        </div>
+
+      <!-- Footer bottom -->
+      <div class="mt-6 pt-4 border-t flex justify-center items-center gap-3 text-caption" style="border-color: var(--color-border-subtle);">
+        <span>Powered by Vue 3 + Express + SQLite</span>
+        <span class="hidden md:inline">·</span>
+        <span>&copy; {{ currentYear }} jiaandmiya.com</span>
       </div>
     </div>
   </footer>
@@ -64,23 +47,13 @@ import { getContent, parseContent } from '@/utils/contentStorage'
 
 const currentYear = computed(() => new Date().getFullYear())
 
-// 备案信息
-const serviceName = '我的个人分享站'
-const domain = 'jiaandmiya.com'
-const icpNumber = '黔ICP备2026003662号-1'
-const icpLink = 'https://beian.miit.gov.cn/'
-
-const footerInfo = ref({
-  title: 'jiaandmiya',
-  subtitle: '简约 · 技术 · 二次元 · 社区',
-  description: '以我的路程视角出发',
-  miyaText: 'Miya 在线当管家 ✨'
-})
-
 const footerLinks = ref([
-  { label: '技术笔记', path: '/notes' },
-  { label: '文化区', path: '/culture' },
-  { label: '社区', path: '/community' }
+  { label: '技术笔记', path: '/blog' },
+  { label: '创作', path: '/library' },
+  { label: '人文', path: '/gallery' },
+  { label: 'OC 社区', path: '/companions' },
+  { label: '免费资源', path: '/resources' },
+  { label: '关于', path: '/about' },
 ])
 
 const footerExternal = ref([
@@ -89,18 +62,20 @@ const footerExternal = ref([
 
 onMounted(() => {
   const info = getContent('footer-info')
-  if (info) {
-    footerInfo.value = parseContent(info)
-  }
-
   const links = getContent('footer-links')
-  if (links) {
-    footerLinks.value = parseContent(links)
-  }
-
+  if (links) footerLinks.value = parseContent(links)
   const external = getContent('footer-external')
-  if (external) {
-    footerExternal.value = parseContent(external)
-  }
+  if (external) footerExternal.value = parseContent(external)
 })
 </script>
+
+<style scoped>
+.footer-link {
+  color: var(--color-text-caption);
+  transition: color 0.2s;
+  text-decoration: none;
+}
+.footer-link:hover {
+  color: var(--color-primary);
+}
+</style>

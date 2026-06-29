@@ -1,14 +1,11 @@
-<template>
+﻿<template>
   <button
     :class="cn(
-      'inline-flex items-center justify-center gap-2',
-      'font-medium',
-      'transition-all duration-200',
-      'focus:outline-none',
-      'disabled:opacity-50 disabled:cursor-not-allowed',
+      'inline-flex items-center justify-center gap-2 font-medium transition-all duration-300',
+      'focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed',
+      'active:scale-[0.97]',
       sizeClasses,
-      variant === 'cyber' ? cyberClasses : standardClasses,
-      hoverClasses,
+      variantClasses,
       className
     )"
     :disabled="disabled"
@@ -19,7 +16,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -29,47 +25,60 @@ interface Props {
   disabled?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   variant: 'primary',
   size: 'md',
   className: '',
   disabled: false
 })
 
-const standardClasses = computed(() => {
-  const variants: Record<string, string> = {
-    primary: 'bg-primary-500 text-white hover:bg-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-xl',
-    secondary: 'bg-secondary-500 text-white hover:bg-secondary-600 focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2 rounded-xl',
-    outline: 'border-2 border-primary-500 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 focus:ring-2 focus:ring-primary-500 rounded-xl',
-    ghost: 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 focus:ring-2 focus:ring-gray-500 rounded-lg',
-  }
-  return variants[props.variant] || variants.primary
-})
+const variantClasses = {
+  primary: [
+    'rounded-md font-semibold',
+    'bg-gradient-to-r from-[#00ADB5] to-[#00FFF5]',
+    'text-[#0a0a1a]',
+    'shadow-[0_0_20px_rgba(0,173,181,0.25)]',
+    'hover:shadow-[0_0_35px_rgba(0,255,245,0.4)]',
+    'hover:scale-[1.02]',
+    'border border-transparent',
+  ].join(' '),
 
-const cyberClasses = computed(() => {
-  return cn(
+  secondary: [
     'rounded-md',
-    'bg-transparent border',
-    'text-cyber-cyan border-cyber-cyan/40',
+    'bg-black/40 border border-white/8',
+    'text-cyber-cyan hover:text-cyber-cyan/90',
+    'hover:bg-cyber-cyan/8 hover:border-cyber-cyan/25',
+    'hover:shadow-[0_0_25px_rgba(0,255,245,0.08)]',
+  ].join(' '),
+
+  outline: [
+    'rounded-md',
+    'border border-cyber-cyan/30',
+    'text-cyber-cyan',
+    'hover:bg-cyber-cyan/10 hover:border-cyber-cyan/60',
+    'hover:shadow-glow-cyan',
+  ].join(' '),
+
+  ghost: [
+    'rounded-lg',
+    'text-hud-dim',
+    'hover:text-cyber-cyan hover:bg-cyber-cyan/6',
+  ].join(' '),
+
+  cyber: [
+    'rounded-md',
+    'bg-transparent border border-cyber-cyan/40',
+    'text-cyber-cyan',
+    'font-mono tracking-wider',
     'hover:bg-cyber-cyan/10 hover:border-cyber-cyan/80',
     'hover:shadow-glow-cyan',
-    'font-mono tracking-wider',
-    'focus:ring-2 focus:ring-cyber-cyan/50'
-  )
-})
+    'hover:skew-x-[-4deg]',
+  ].join(' '),
+}
 
-const sizeClasses = computed(() => {
-  const sizes: Record<string, string> = {
-    sm: 'px-4 py-1.5 text-xs',
-    md: 'px-6 py-2.5 text-sm',
-    lg: 'px-8 py-3 text-base'
-  }
-  return sizes[props.size]
-})
-
-const hoverClasses = computed(() => {
-  if (props.disabled) return ''
-  if (props.variant === 'cyber') return 'hover:scale-105 active:scale-95'
-  return 'hover:-translate-y-0.5 hover:shadow-md active:scale-95'
-})
+const sizeClasses = {
+  sm: 'px-4 py-1.5 text-xs',
+  md: 'px-6 py-2.5 text-sm',
+  lg: 'px-8 py-3 text-base',
+}
 </script>

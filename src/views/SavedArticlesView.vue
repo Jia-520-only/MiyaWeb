@@ -1,5 +1,5 @@
-<template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+﻿<template>
+  <div class="min-h-screen bg-transparent">
     <div class="container mx-auto px-4 py-8">
       <div class="max-w-6xl mx-auto">
         <div class="flex items-center justify-between mb-8">
@@ -7,13 +7,13 @@
           <div class="flex gap-2">
             <button
               @click="exportArticles"
-              class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-100 rounded-lg text-sm"
+              class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-100 rounded-lg text-sm"
             >
               📥 导出
             </button>
             <button
               @click="showImport = true"
-              class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-100 rounded-lg text-sm"
+              class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-100 rounded-lg text-sm"
             >
               📤 导入
             </button>
@@ -25,7 +25,7 @@
           <div
             v-for="article in savedArticles"
             :key="article.id"
-            class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
+            class="bg-black/40 rounded-lg shadow-md p-6"
           >
             <div class="flex items-start justify-between">
               <div class="flex-1">
@@ -35,7 +35,7 @@
                 <p class="text-gray-600 dark:text-gray-300 text-sm mb-3">
                   {{ article.summary || '暂无摘要' }}
                 </p>
-                <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                <div class="flex items-center gap-4 text-xs text-gray-400">
                   <span>📅 {{ formatDate(article.updatedAt) }}</span>
                   <span>⏱️ {{ article.readTime }} 分钟</span>
                   <span v-if="article.published" class="text-green-600">已发布</span>
@@ -63,7 +63,7 @@
         <!-- 空状态 -->
         <div v-else class="text-center py-12">
           <div class="text-6xl mb-4">📝</div>
-          <p class="text-gray-500 dark:text-gray-400 mb-4">还没有保存任何文章</p>
+          <p class="text-gray-400 mb-4">还没有保存任何文章</p>
           <router-link
             to="/editor"
             class="inline-block px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-lg font-medium"
@@ -76,12 +76,12 @@
 
     <!-- 导入弹窗 -->
     <div v-if="showImport" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+      <div class="bg-black/40 rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
         <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">导入文章</h3>
         <textarea
           v-model="importJson"
           rows="10"
-          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-gray-100 font-mono text-sm"
+          class="w-full px-4 py-3 border border-white/10 rounded-lg bg-black/35 text-gray-200 font-mono text-sm"
           placeholder="粘贴导出的 JSON 数据..."
         />
         <div class="flex gap-2 mt-4">
@@ -93,7 +93,7 @@
           </button>
           <button
             @click="showImport = false; importJson = ''"
-            class="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-100 rounded-lg"
+            class="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-100 rounded-lg"
           >
             取消
           </button>
@@ -104,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { ArticleStorage } from '@/utils/articleStorage';
 
 const savedArticles = ref<any[]>([]);

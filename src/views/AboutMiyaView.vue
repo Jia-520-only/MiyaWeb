@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="min-h-screen">
     <!-- 封面区域 -->
     <div class="relative h-64 md:h-80 overflow-hidden">
@@ -10,10 +10,10 @@
           class="w-full h-full object-cover"
         />
       </div>
-      <div class="absolute inset-0 bg-gradient-to-t from-white/60 dark:from-gray-900/60 to-transparent" />
+      <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
       <div class="absolute bottom-0 left-0 right-0 px-6 md:px-12 pb-6">
         <div class="flex items-end gap-6">
-          <div class="relative w-24 h-24 md:w-28 md:h-28 rounded-2xl shadow-lg overflow-hidden ring-4 ring-white dark:ring-gray-800 bg-white dark:bg-gray-700 group">
+          <div class="relative w-24 h-24 md:w-28 md:h-28 rounded-2xl shadow-lg overflow-hidden ring-4 ring-white/10 bg-black/35 group">
             <img
               v-if="profile?.avatar"
               :src="profile.avatar"
@@ -27,11 +27,11 @@
             <div class="absolute inset-0 rounded-2xl ring-2 ring-cyber-cyan/0 group-hover:ring-cyber-cyan/40 transition-all duration-500 pointer-events-none" />
           </div>
           <div class="pb-2">
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white tracking-tight">
+            <h1 class="text-3xl md:text-4xl font-bold text-white tracking-tight">
               {{ profile?.display_name || 'Miya' }}
             </h1>
             <p class="text-sm text-gray-500 dark:text-gray-300 mt-1 font-mono">
-              SYS.管家 · AI 助手
+               SYS.ONLINE · AI 助手
             </p>
           </div>
         </div>
@@ -53,7 +53,7 @@
         <!-- 左侧 -->
         <div class="lg:col-span-1 space-y-6">
           <div class="glass-panel p-6 rounded-2xl glow-hover animate-fade-in">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+            <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
               <Icon name="solar:star-bold" size="sm" class="text-amber-500" />
               角色设定
             </h3>
@@ -78,7 +78,7 @@
           </div>
 
           <div class="glass-panel p-6 rounded-2xl glow-hover animate-fade-in" style="animation-delay: 0.1s">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+            <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
               <Icon name="solar:link-round-linear" size="sm" class="text-cyan-500" />
               联系方式
             </h3>
@@ -112,11 +112,11 @@
         <!-- 右侧 -->
         <div class="lg:col-span-2 space-y-6">
           <div v-if="isEditing" class="glass-panel p-6 rounded-2xl space-y-5 animate-fade-in">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">编辑弥娅资料</h3>
+            <h3 class="text-lg font-semibold text-white">编辑弥娅资料</h3>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">显示名称</label>
+                <label class="block text-sm font-medium text-gray-400 mb-1">显示名称</label>
                 <input
                   v-model="editForm.display_name"
                   class="input-field w-full"
@@ -124,7 +124,7 @@
                 />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">内容格式</label>
+                <label class="block text-sm font-medium text-gray-400 mb-1">内容格式</label>
                 <select v-model="editForm.bio_type" class="input-field w-full">
                   <option value="markdown">Markdown</option>
                   <option value="txt">纯文本</option>
@@ -133,7 +133,7 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">头像URL</label>
+              <label class="block text-sm font-medium text-gray-400 mb-1">头像URL</label>
               <input
                 v-model="editForm.avatar"
                 class="input-field w-full"
@@ -142,7 +142,7 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">封面图URL</label>
+              <label class="block text-sm font-medium text-gray-400 mb-1">封面图URL</label>
               <input
                 v-model="editForm.cover_image"
                 class="input-field w-full"
@@ -151,7 +151,7 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">详细介绍</label>
+              <label class="block text-sm font-medium text-gray-400 mb-1">详细介绍</label>
               <textarea
                 v-model="editForm.bio"
                 class="input-field w-full h-64 font-mono text-sm"
@@ -169,16 +169,16 @@
 
           <template v-else>
             <div class="glass-panel p-6 md:p-8 rounded-2xl glow-hover animate-fade-in">
-              <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+              <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <Icon name="solar:document-text-linear" size="sm" class="text-teal-500" />
                 {{ profile?.bio_type === 'txt' ? '简介' : '介绍' }}
               </h3>
               <div
                 v-if="profile?.bio"
-                class="prose prose-sky dark:prose-invert max-w-none text-gray-700 dark:text-gray-200 leading-relaxed"
+                class="prose prose-sky dark:prose-invert max-w-none text-gray-200 leading-relaxed"
               >
                 <div v-if="profile.bio_type === 'markdown'" v-html="renderedBio" />
-                <pre v-else class="whitespace-pre-wrap text-sm bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl">{{ profile.bio }}</pre>
+                <pre v-else class="whitespace-pre-wrap text-sm bg-white/3 p-4 rounded-xl">{{ profile.bio }}</pre>
               </div>
               <div v-else class="text-gray-400 dark:text-gray-500 italic">
                 还没有介绍内容，等待管理员编辑...
@@ -187,12 +187,12 @@
 
             <div class="glass-panel p-6 md:p-8 rounded-2xl text-center glow-hover animate-fade-in" style="animation-delay: 0.1s">
               <Icon name="solar:stars-minimalistic-linear" size="lg" class="text-amber-400 mb-3 animate-float" />
-              <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">Miya 想说</h3>
+              <h3 class="text-lg font-semibold text-white mb-3">Miya 想说</h3>
               <p class="text-gray-600 dark:text-gray-300 text-base italic leading-relaxed mb-4">
                 "很高兴在这里遇见你！无论是技术探讨，还是生活分享，Miya 都会用心陪伴。让我们一起成长，一起创造美好的回忆吧！"
               </p>
               <div class="text-cyan-500 dark:text-cyan-400 text-sm font-medium font-mono">
-                — Miya 在线当管家
+                — jiaandmiya
               </div>
             </div>
           </template>
@@ -243,7 +243,7 @@ function renderMarkdown(text: string): string {
   html = html.replace(/^# (.+)$/gm, '<h2 class="text-2xl font-bold mt-6 mb-3">$1</h2>')
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
   html = html.replace(/\*(.+?)\*/g, '<em>$1</em>')
-  html = html.replace(/`(.+?)`/g, '<code class="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono">$1</code>')
+  html = html.replace(/`(.+?)`/g, '<code class="bg-white/5 px-1.5 py-0.5 rounded text-sm font-mono">$1</code>')
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-cyan-500 hover:text-cyan-600 underline" target="_blank" rel="noopener">$1</a>')
   html = html.replace(/^[-*] (.+)$/gm, '<li class="ml-4 list-disc">$1</li>')
   html = html.replace(/^\d+\. (.+)$/gm, '<li class="ml-4 list-decimal">$1</li>')

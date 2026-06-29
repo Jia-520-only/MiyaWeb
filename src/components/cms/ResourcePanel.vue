@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="space-y-6">
     <div class="flex items-center justify-between">
       <h2 class="section-title !mb-0">免费资源链接</h2>
@@ -20,7 +20,7 @@
             <Icon v-else name="solar:link-round-bold-duotone" size="lg" />
           </div>
           <div class="min-w-0">
-            <h3 class="font-semibold text-gray-900 dark:text-white text-sm truncate">{{ res.title }}</h3>
+            <h3 class="font-semibold text-white text-sm truncate">{{ res.title }}</h3>
             <div class="flex items-center gap-2 text-xs text-gray-400">
               <span v-if="res.category">{{ res.category }}</span>
               <span v-if="res.category">·</span>
@@ -42,33 +42,33 @@
     <Teleport to="body">
       <div v-if="showModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[100] p-4" @click.self="showModal = false">
         <div class="glass-panel p-8 max-w-lg w-full animate-slide-up">
-          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">{{ editingId ? '编辑资源' : '添加资源' }}</h2>
+          <h2 class="text-xl font-bold text-white mb-6">{{ editingId ? '编辑资源' : '添加资源' }}</h2>
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">标题</label>
+              <label class="block text-sm font-medium text-gray-300 mb-1">标题</label>
               <input v-model="form.title" class="input-field" placeholder="资源名称" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">链接 URL</label>
+              <label class="block text-sm font-medium text-gray-300 mb-1">链接 URL</label>
               <input v-model="form.url" class="input-field" placeholder="https://..." />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">描述</label>
+              <label class="block text-sm font-medium text-gray-300 mb-1">描述</label>
               <textarea v-model="form.description" class="input-field !h-20 resize-none" placeholder="简短描述" />
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">分类</label>
+                <label class="block text-sm font-medium text-gray-300 mb-1">分类</label>
                 <input v-model="form.category" class="input-field" placeholder="如：工具、教程" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Icon (Iconify)</label>
+                <label class="block text-sm font-medium text-gray-300 mb-1">Icon (Iconify)</label>
                 <input v-model="form.icon" class="input-field" placeholder="solar:..." />
               </div>
             </div>
             <label class="flex items-center gap-2 text-sm">
               <input type="checkbox" v-model="form.is_visible" class="rounded border-gray-300 text-primary-500" />
-              <span class="text-gray-700 dark:text-gray-300">显示</span>
+              <span class="text-gray-300">显示</span>
             </label>
           </div>
           <div class="flex justify-end gap-3 mt-6">

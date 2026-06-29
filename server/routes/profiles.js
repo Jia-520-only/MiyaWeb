@@ -1,5 +1,5 @@
 const express = require('express');
-const { dbAll, dbGet, dbRun } = require('../database/db');
+const { dbGet, dbRun } = require('../database/db');
 const { authenticate, hasPermission } = require('../utils/jwt');
 
 const router = express.Router();

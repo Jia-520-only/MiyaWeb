@@ -1,5 +1,11 @@
 const { dbRun } = require('./db');
 
+const alterMigrations = [
+  `ALTER TABLE items ADD COLUMN status VARCHAR(20) DEFAULT 'published' CHECK(status IN ('draft', 'published'))`,
+  `ALTER TABLE items ADD COLUMN source_file VARCHAR(500)`,
+  `ALTER TABLE articles_v2 ADD COLUMN status VARCHAR(20) DEFAULT 'published' CHECK(status IN ('draft', 'published'))`,
+]
+
 // 数据库迁移SQL语句
 const migrations = [
   // 用户表
@@ -134,14 +140,38 @@ const migrations = [
   `CREATE INDEX IF NOT EXISTS idx_comments_created ON comments(created_at)`,
   `CREATE INDEX IF NOT EXISTS idx_uploads_user ON uploads(user_id)`,
   `CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`,
-  `CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)`
+  `CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)`,
+
+  `CREATE INDEX IF NOT EXISTS idx_articles_slug ON articles(slug)`,
+  `CREATE INDEX IF NOT EXISTS idx_articles_published_at ON articles(published_at)`,
+  `CREATE INDEX IF NOT EXISTS idx_articles_tags ON articles(tags)`,
+  `CREATE INDEX IF NOT EXISTS idx_categories_slug ON categories(slug)`,
+  `CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)`,
+  `CREATE INDEX IF NOT EXISTS idx_content_items_page_section ON content_items(page, section)`
+];
+
+const lateMigrations = [
+  `CREATE INDEX IF NOT EXISTS idx_items_slug ON items(slug)`,
+  `CREATE INDEX IF NOT EXISTS idx_items_collection_status ON items(collection_id, status, is_visible)`,
+  `CREATE INDEX IF NOT EXISTS idx_companions_created ON companions(created_at)`,
+  `CREATE INDEX IF NOT EXISTS idx_companion_dialogues_created ON companion_dialogues(created_at)`,
+  `CREATE INDEX IF NOT EXISTS idx_companion_chapters_number ON companion_chapters(companion_id, chapter_number)`,
+  `CREATE INDEX IF NOT EXISTS idx_volumes_item ON volumes(item_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_chapters_item ON chapters(item_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_chapters_volume ON chapters(volume_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_articles_v2_chapter ON articles_v2(chapter_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_articles_v2_item ON articles_v2(item_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_navigation_sort ON nav_items(sort_order)`,
+  `CREATE INDEX IF NOT EXISTS idx_resources_category ON resource_links(category)`,
+  `CREATE INDEX IF NOT EXISTS idx_collections_type ON collections(type)`,
+  `CREATE INDEX IF NOT EXISTS idx_profiles_user ON profiles(user_id)`
 ];
 
 // 安全迁移：添加 items 表的 content/content_type 字段
 const safeMigrations = async () => {
   const migrations = [
     { sql: `ALTER TABLE items ADD COLUMN content TEXT DEFAULT ''`, desc: 'items.content' },
-    { sql: `ALTER TABLE items ADD COLUMN content_type VARCHAR(10) DEFAULT 'markdown' CHECK(content_type IN ('markdown', 'txt', 'richtext'))`, desc: 'items.content_type' },
+    { sql: `ALTER TABLE items ADD COLUMN content_type VARCHAR(20) DEFAULT 'markdown' CHECK(content_type IN ('markdown', 'txt', 'richtext'))`, desc: 'items.content_type' },
   ];
   const { dbRun } = require('./db');
   for (const m of migrations) {
@@ -168,11 +198,58 @@ const runMigrations = async () => {
       await dbRun(migrations[i]);
       console.log(`✅ 迁移 ${i + 1}/${migrations.length} 完成`);
     }
+    for (const m of alterMigrations) {
+      try { await dbRun(m) } catch { /* column may already exist */ }
+    }
     
     console.log('🎉 所有数据库迁移完成');
   } catch (error) {
     console.error('❌ 数据库迁移失败:', error);
     throw error;
+  }
+};
+
+// 延迟迁移 - 在 CMS/伴侣表创建后执行
+const runLateMigrations = async () => {
+  console.log('🔄 执行延迟索引迁移...');
+  try {
+    for (let i = 0; i < lateMigrations.length; i++) {
+      try {
+        await dbRun(lateMigrations[i]);
+      } catch { /* table may not exist yet */ }
+    }
+
+    // 清理旧数据中的绝对 URL → 相对路径
+    console.log('🧹 清理旧图片URL...');
+    const stripHost = (col) => `REPLACE(REPLACE(${col}, 'http://jiaandmiya.com', ''), 'https://jiaandmiya.com', '')`;
+    const cleanTable = async (table, columns) => {
+      for (const col of columns) {
+        try {
+          await dbRun(`UPDATE ${table} SET ${col} = ${stripHost(col)} WHERE ${col} LIKE 'http%'`);
+        } catch { /* might not exist */ }
+      }
+    };
+    await cleanTable('uploads', ['path', 'thumb_path']);
+    await cleanTable('sidebar_images', ['path', 'thumb_path']);
+    await cleanTable('banner_images', ['path', 'thumb_path']);
+    await cleanTable('collections', ['cover_image']);
+    await cleanTable('items', ['cover_image']);
+    await cleanTable('resource_links', ['cover_image']);
+    await cleanTable('profiles', ['avatar', 'cover_image', 'background_image']);
+    await cleanTable('articles', ['cover_image']);
+    await cleanTable('oc_images', []);
+    // 清理正文内容中嵌入的旧 URL
+    try {
+      await dbRun(`UPDATE articles SET content = REPLACE(REPLACE(content, 'http://jiaandmiya.com', ''), 'https://jiaandmiya.com', '') WHERE content LIKE '%http://jiaandmiya.com%' OR content LIKE '%https://jiaandmiya.com%'`);
+      await dbRun(`UPDATE items SET description = REPLACE(REPLACE(description, 'http://jiaandmiya.com', ''), 'https://jiaandmiya.com', '') WHERE description LIKE '%http://jiaandmiya.com%' OR description LIKE '%https://jiaandmiya.com%'`);
+      await dbRun(`UPDATE content_items SET content = REPLACE(REPLACE(content, 'http://jiaandmiya.com', ''), 'https://jiaandmiya.com', '') WHERE content LIKE '%http://jiaandmiya.com%' OR content LIKE '%https://jiaandmiya.com%'`);
+      await dbRun(`UPDATE content_items SET metadata = REPLACE(REPLACE(metadata, 'http://jiaandmiya.com', ''), 'https://jiaandmiya.com', '') WHERE metadata LIKE '%http://jiaandmiya.com%' OR metadata LIKE '%https://jiaandmiya.com%'`);
+    } catch { /* skip */ }
+    console.log('✅ 图片URL清理完成');
+
+    console.log('✅ 延迟索引迁移完成');
+  } catch (error) {
+    console.error('❌ 延迟索引迁移失败:', error);
   }
 };
 
@@ -189,6 +266,7 @@ const initDatabase = async () => {
 
 module.exports = {
   runMigrations,
+  runLateMigrations,
   initDatabase,
   safeMigrations
 };
